@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Shared form/action classes used across ReviewQueue + Settings. */
+@layer components {
+  .input {
+    @apply w-full rounded-md border border-stone-300 bg-stone-50 px-3 py-2 text-sm outline-none focus:border-emerald-700 disabled:bg-stone-100 disabled:text-stone-500;
+  }
+  .btn-primary {
+    @apply w-full rounded-lg bg-emerald-800 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply w-full rounded-lg border border-red-200 bg-red-50 py-2 text-sm font-medium text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}
