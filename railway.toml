@@ -1,0 +1,26 @@
+# Railway configuration — container deploy from the Dockerfile.
+#
+# CRITICAL (rule 4): the app must bind 0.0.0.0 and read process.env.PORT.
+# Railway injects PORT at runtime and health-checks that port; a server
+# hardcoded to localhost:3000 makes the health check fail and the deploy
+# gets rolled back. src/index.ts handles this — do not "simplify" it.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "node dist/index.js"
+healthcheckPath = "/healthz"
+healthcheckTimeout = 120        # first boot runs migrations + cold worker start
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# Env vars to set in the Railway dashboard (Variables tab):
+#   DATABASE_URL  → auto-injected when you add the PostgreSQL plugin
+#   REDIS_URL     → auto-injected when you add the Redis plugin
+#   JWT_SECRET, MASTER_ENCRYPTION_KEY, KARBON_WEBHOOK_SECRET,
+#   KARBON_BEARER_TOKEN, KARBON_ACCESS_KEY,
+#   REPLIT_GENERATOR_APP_URL, REPLIT_SERVICE_SECRET,
+#   OPENAI_API_KEY, WORDPRESS_*, META_*, AC_*, LINKEDIN_*, FB_*, IG_*
+# Never commit real values — .env is gitignored; .env.example documents the full set.

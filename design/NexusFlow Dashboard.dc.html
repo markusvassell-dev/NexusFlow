@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:var(--bg,#f4f2ed);}
+*{box-sizing:border-box;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:var(--line5,#d8d4c8);border-radius:6px;border:2px solid var(--bg,#f4f2ed);}
+::placeholder{color:var(--tx4,#bdb8a9);}
+::-webkit-scrollbar-track{background:transparent;}
+input,textarea,button,select{font-family:inherit;}
+@keyframes nfPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+@keyframes nfIn{from{opacity:0;transform:translate(-50%,-8px);}to{opacity:1;transform:translate(-50%,0);}}
+</style>
+</helmet>
+<div style="display:flex; height:100vh; overflow:hidden; background:var(--bg,#f4f2ed); color:var(--tx,#1a1d20); font-family:'IBM Plex Sans',system-ui,sans-serif; font-size:13.5px;">
+
+  <sc-if value="{{ showLogin }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; z-index:80; background:var(--bg,#f4f2ed); display:flex; align-items:center; justify-content:center; padding:24px;">
+      <div style="width:400px; max-width:92vw;">
+        <div style="display:flex; align-items:center; gap:10px; justify-content:center;">
+          <div style="width:34px; height:34px; border-radius:8px; background:var(--grn); color:#F5F3EE; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px;">N</div>
+          <div>
+            <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px;">NexusFlow</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--tx3); margin-top:1px;">marketing ops · team sign-in</div>
+          </div>
+        </div>
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:22px 24px; margin-top:18px; box-shadow:0 10px 30px rgba(20,18,12,.08);">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">Email</div>
+          <input type="email" value="{{ loginEmail }}" onChange="{{ onLoginEmail }}" onKeyDown="{{ onLoginKey }}" placeholder="you@aegisadvisory.co.uk" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:10px 12px; font-size:13px; background:var(--bg2); color:var(--tx); outline:none; margin-top:5px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin-top:12px;">Password</div>
+          <input type="password" value="{{ loginPw }}" onChange="{{ onLoginPw }}" onKeyDown="{{ onLoginKey }}" placeholder="••••••••" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:10px 12px; font-size:13px; background:var(--bg2); color:var(--tx); outline:none; margin-top:5px;">
+          <sc-if value="{{ loginErrShow }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:11.5px; color:var(--red); margin-top:9px; line-height:1.45;">{{ loginErr }}</div>
+          </sc-if>
+          <button onClick="{{ onLogin }}" style="width:100%; margin-top:14px; background:var(--grn); color:#fff; border:none; border-radius:8px; padding:11px 0; font-size:13px; font-weight:600; cursor:pointer;" style-hover="background:var(--grnH);">Sign in</button>
+          <div style="display:flex; align-items:center; gap:10px; margin:16px 0 10px;">
+            <div style="flex:1; height:1px; background:var(--line2);"></div>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx4);">demo accounts</span>
+            <div style="flex:1; height:1px; background:var(--line2);"></div>
+          </div>
+          <sc-for list="{{ demoUsers }}" as="du" hint-placeholder-count="3">
+            <div onClick="{{ du.pick }}" style="display:flex; align-items:center; gap:9px; padding:8px 10px; border:1px solid var(--line2); border-radius:8px; margin-top:6px; cursor:pointer;" style-hover="background:var(--bg3); border-color:var(--line5);">
+              <span style="width:24px; height:24px; border-radius:50%; background:var(--vio); color:#fff; font-size:9.5px; font-weight:600; display:flex; align-items:center; justify-content:center; flex:none;">{{ du.initials }}</span>
+              <span style="font-size:12px; font-weight:500; flex:1;">{{ du.name }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:{{ du.roleC }};">{{ du.role }}</span>
+            </div>
+          </sc-for>
+          <div style="font-size:10px; color:var(--tx4); margin-top:12px; line-height:1.5;">Prototype auth — pick a demo account; any password works. Production build: bcrypt hashes, JWT sessions, /api/auth middleware on every route.</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:60; background:#15181B; color:#E9E7E1; padding:10px 18px; border-radius:8px; box-shadow:0 10px 28px rgba(20,18,12,.28); border:1px solid rgba(255,255,255,.14); animation:nfIn .25s ease; display:flex; gap:10px; align-items:center;">
+      <span style="width:7px; height:7px; border-radius:50%; background:#2FBF8F; flex:none;"></span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px;">{{ toastMsg }}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ modalShow }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onModalBg }}" style="position:fixed; inset:0; z-index:50; background:rgba(12,11,9,.46); display:flex; align-items:center; justify-content:center; padding:28px;">
+      <div onClick="{{ eatClick }}" style="background:var(--bg2); border:1px solid var(--line); border-radius:12px; width:780px; max-width:94vw; max-height:86vh; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(15,13,10,.4);">
+        <div style="display:flex; align-items:center; gap:10px; padding:14px 20px; border-bottom:1px solid var(--line2);">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600;">{{ mId }}</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--tx3);">{{ mKarbon }}</span>
+          <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:500; padding:3px 9px; border-radius:99px; background:{{ mStBg }}; color:{{ mStC }};">{{ mStatusLabel }}</span>
+          <span style="flex:1;"></span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">audit trail · bullmq jobs</span>
+          <button onClick="{{ onModalClose }}" style="width:28px; height:28px; border:1px solid var(--line5); background:none; border-radius:6px; cursor:pointer; color:var(--tx2); font-size:13px; line-height:1; padding:0;" style-hover="background:var(--bg5);">✕</button>
+        </div>
+        <div style="flex:1; overflow:auto; padding:14px 20px 18px;">
+          <sc-for list="{{ mJobs }}" as="mj" hint-placeholder-count="6">
+            <div style="border:1px solid var(--line3); border-radius:8px; padding:10px 13px; margin-bottom:8px; background:var(--card);">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx4); width:17px; flex:none;">{{ mj.num }}</span>
+                <span style="width:8px; height:8px; border-radius:50%; background:{{ mj.dot }}; flex:none;"></span>
+                <span style="font-size:12.5px; font-weight:600;">{{ mj.label }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx3);">{{ mj.queue }}</span>
+                <span style="flex:1;"></span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx4);">{{ mj.jobId }}</span>
+                <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.06em; text-transform:uppercase; font-weight:500; padding:2px 7px; border-radius:99px; background:{{ mj.pBg }}; color:{{ mj.pC }}; width:88px; text-align:center; flex:none;">{{ mj.statusLabel }}</span>
+              </div>
+              <div style="display:flex; gap:16px; margin:6px 0 0 27px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3); flex-wrap:wrap;">
+                <span>start {{ mj.start }}</span>
+                <span>end {{ mj.end }}</span>
+                <span>{{ mj.dur }}</span>
+                <span>{{ mj.attempts }}</span>
+              </div>
+              <sc-if value="{{ mj.showErr }}" hint-placeholder-val="{{ false }}">
+                <div style="margin:8px 0 0 27px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; line-height:1.6; background:var(--redT); border:1px solid var(--redL); border-radius:6px; padding:8px 11px; color:var(--red); white-space:pre-wrap; word-break:break-word;">{{ mj.err }}</div>
+              </sc-if>
+              <sc-if value="{{ mj.showNote }}" hint-placeholder-val="{{ false }}">
+                <div style="margin:7px 0 0 27px; font-size:11px; color:var(--tx2); line-height:1.5;">{{ mj.note }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin:14px 0 6px;">Audit log</div>
+          <sc-for list="{{ mAudit }}" as="ma" hint-placeholder-count="6">
+            <div style="display:flex; gap:9px; padding:6px 0; border-top:1px dashed var(--line2); align-items:baseline;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx4); width:52px; flex:none;">{{ ma.time }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:{{ ma.whoC }}; width:56px; flex:none;">{{ ma.who }}</span>
+              <span style="font-size:11px; line-height:1.45; color:var(--tx1);">{{ ma.msg }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:12px 20px; border-top:1px solid var(--line2);">
+          <span style="font-size:10.5px; color:var(--tx3);">Timestamps from BullMQ job lifecycle events · error bodies verbatim from adapter responses</span>
+          <span style="flex:1;"></span>
+          <button onClick="{{ onModalOpenRun }}" style="background:var(--grn); color:#fff; border:none; border-radius:7px; padding:9px 16px; font-size:12px; font-weight:600; cursor:pointer;" style-hover="background:var(--grnH);">Open full run →</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="width:218px; flex:none; background:#15181B; color:#E9E7E1; display:flex; flex-direction:column; padding:18px 12px 14px;">
+    <div style="display:flex; align-items:center; gap:9px; padding:2px 10px 16px; border-bottom:1px solid rgba(255,255,255,.08); margin-bottom:12px;">
+      <div style="width:26px; height:26px; border-radius:6px; background:var(--grn); color:#F4F2ED; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; flex:none;">N</div>
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14.5px; letter-spacing:.01em;">NexusFlow</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:#8B8FA0; margin-top:1px;">marketing ops</div>
+      </div>
+    </div>
+    <sc-for list="{{ navItems }}" as="nv" hint-placeholder-count="4">
+      <div onClick="{{ nv.go }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:7px; cursor:pointer; margin-bottom:2px; color:{{ nv.color }}; background:{{ nv.bg }};" style-hover="background:rgba(255,255,255,.08);">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:{{ nv.numColor }}; flex:none;">{{ nv.num }}</span>
+        <span style="font-size:13px; font-weight:{{ nv.weight }}; flex:1;">{{ nv.label }}</span>
+        <sc-if value="{{ nv.showBadge }}" hint-placeholder-val="{{ false }}">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; background:var(--vio); color:#fff; padding:1px 7px; border-radius:99px;">{{ nv.badge }}</span>
+        </sc-if>
+      </div>
+    </sc-for>
+    <div style="flex:1;"></div>
+    <div style="border:1px dashed rgba(255,255,255,.18); border-radius:8px; padding:9px 11px; margin:0 2px 10px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:#D9A03F;">● sandbox mode</div>
+      <div style="font-size:10.5px; color:#8B8FA0; margin-top:3px; line-height:1.45;">Meta Ads + Karbon webhook run against sandbox until app review clears.</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:7px; background:rgba(255,255,255,.04);">
+      <div style="width:24px; height:24px; border-radius:50%; background:var(--vio); color:#fff; font-size:10px; font-weight:600; display:flex; align-items:center; justify-content:center; flex:none;">{{ meInitials }}</div>
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:11.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ meName }}</div>
+        <div style="font-size:9.5px; color:#8B8FA0;">{{ meRole }}</div>
+      </div>
+      <button onClick="{{ onLogout }}" title="Log out" style="background:none; border:1px solid rgba(255,255,255,.22); color:#A7ABB8; border-radius:6px; padding:5px 8px; font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; flex:none;" style-hover="background:rgba(255,255,255,.1); color:#F4F2ED;">log out</button>
+    </div>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+    <div style="height:58px; flex:none; display:flex; align-items:center; gap:14px; padding:0 24px; border-bottom:1px solid var(--line4); background:var(--bg2);">
+      <div style="flex:1; min-width:0;">
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:600;">{{ pageTitle }}</div>
+        <div style="font-size:11px; color:var(--tx3); margin-top:1px;">{{ pageSub }}</div>
+      </div>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--tx2); background:var(--bg5); border:1px solid var(--line4); padding:5px 10px; border-radius:6px; white-space:nowrap;">{{ queueChip }}</span>
+      <button onClick="{{ onTheme }}" title="Toggle dark mode" style="width:34px; height:34px; flex:none; border:1px solid var(--line5); background:var(--card); color:var(--tx2); border-radius:7px; cursor:pointer; font-size:14px; line-height:1; padding:0;" style-hover="background:var(--bg5);">{{ themeGlyph }}</button>
+      <button onClick="{{ onSimulate }}" style="background:var(--grn); color:#F6F4EE; border:none; border-radius:7px; padding:9px 16px; font-size:12.5px; font-weight:600; cursor:pointer; letter-spacing:.01em;" style-hover="background:var(--grnH);">Simulate Karbon trigger</button>
+    </div>
+
+    <div style="flex:1; overflow:auto; padding:22px 24px 40px;">
+
+      <sc-if value="{{ viewRuns }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="Runs overview">
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px;">
+            <sc-for list="{{ stats }}" as="stx" hint-placeholder-count="4">
+              <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:13px 16px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">{{ stx.label }}</div>
+                <div style="font-family:'Space Grotesk',sans-serif; font-size:25px; font-weight:600; margin-top:3px; color:{{ stx.color }};">{{ stx.val }}</div>
+                <div style="font-size:10.5px; color:var(--tx3); margin-top:1px;">{{ stx.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; overflow-x:auto;">
+            <div style="min-width:740px; display:grid; grid-template-columns:100px minmax(200px,1fr) 128px 96px 40px 68px 12px; gap:12px; padding:11px 18px; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">
+              <span>Run</span><span>Topic · client</span><span>Pipeline</span><span>Status</span><span>SEO</span><span>Updated</span><span></span>
+            </div>
+            <sc-for list="{{ runRows }}" as="r" hint-placeholder-count="4">
+              <div onClick="{{ r.open }}" style="min-width:740px; display:grid; grid-template-columns:100px minmax(200px,1fr) 128px 96px 40px 68px 12px; gap:12px; align-items:center; padding:13px 18px; border-top:1px solid var(--line2); cursor:pointer;" style-hover="background:var(--bg3);">
+                <div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600;">{{ r.id }}</div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3); margin-top:2px;">{{ r.karbon }}</div>
+                </div>
+                <div style="min-width:0;">
+                  <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.topic }}</div>
+                  <div style="font-size:11px; color:var(--tx3); margin-top:2px;">{{ r.client }}</div>
+                </div>
+                <div style="display:flex; gap:2px;">
+                  <sc-for list="{{ r.segs }}" as="sg" hint-placeholder-count="10">
+                    <span style="width:8px; height:6px; border-radius:2px; background:{{ sg.bg }}; animation:{{ sg.anim }};"></span>
+                  </sc-for>
+                </div>
+                <div><span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:500; padding:3px 8px; border-radius:99px; background:{{ r.stBg }}; color:{{ r.stC }};">{{ r.statusLabel }}</span></div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:600; color:{{ r.seoColor }};">{{ r.seoText }}</div>
+                <div style="font-size:10.5px; color:var(--tx3);">{{ r.updated }}</div>
+                <div style="color:var(--tx4);">→</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3); display:flex; gap:16px;">
+            <span><span style="color:var(--grn);">■</span> done</span><span><span style="color:var(--ambH);">■</span> running</span><span><span style="color:var(--vio);">■</span> review gate</span><span><span style="color:var(--amb2);">■</span> partial</span><span><span style="color:var(--red);">■</span> failed</span><span><span style="color:var(--skip);">■</span> pending/skipped</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewRun }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Run detail">
+          <button onClick="{{ backToRuns }}" style="background:none; border:none; padding:0; margin-bottom:12px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx2); cursor:pointer;" style-hover="color:var(--grn);">← all runs</button>
+          <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600;">{{ dId }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--tx3);">{{ dKarbon }}</span>
+              <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:500; padding:3px 9px; border-radius:99px; background:{{ dStBg }}; color:{{ dStC }};">{{ dStatusLabel }}</span>
+              <span style="flex:1;"></span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--tx3);">{{ dCreated }}</span>
+            </div>
+            <div style="font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; margin-top:8px;">{{ dTopic }}</div>
+            <div style="font-size:12px; color:var(--tx2); margin-top:4px;">{{ dClient }} · tone: {{ dTone }} · {{ dRevText }}</div>
+            <div style="display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;">
+              <sc-for list="{{ dKeywords }}" as="kw" hint-placeholder-count="3">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; border:1px solid var(--line4); background:var(--bg3); color:var(--tx2); padding:3px 8px; border-radius:5px;">{{ kw }}</span>
+              </sc-for>
+            </div>
+            <div style="display:flex; gap:4px; margin-top:16px;">
+              <sc-for list="{{ detailSegs }}" as="ds" hint-placeholder-count="10">
+                <div style="flex:1;">
+                  <div style="height:7px; border-radius:3px; background:{{ ds.bg }}; animation:{{ ds.anim }};"></div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.06em; text-transform:uppercase; color:{{ ds.tc }}; margin-top:5px; text-align:center;">{{ ds.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 336px; gap:14px; align-items:start;">
+            <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden;">
+              <div style="padding:12px 18px; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">Saga stages · durable via BullMQ + Postgres</div>
+              <sc-for list="{{ stageRows }}" as="sr" hint-placeholder-count="10">
+                <div style="padding:11px 18px 12px; border-top:1px solid var(--line2);">
+                  <div style="display:flex; align-items:center; gap:11px;">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx4); width:16px; flex:none;">{{ sr.num }}</span>
+                    <span style="width:8px; height:8px; border-radius:50%; background:{{ sr.dot }}; animation:{{ sr.anim }}; flex:none;"></span>
+                    <div style="flex:1; min-width:0;">
+                      <span style="font-size:13px; font-weight:600;">{{ sr.label }}</span>
+                      <span style="font-size:11px; color:var(--tx3); margin-left:8px;">{{ sr.sys }}</span>
+                    </div>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">{{ sr.meta }}</span>
+                    <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.06em; text-transform:uppercase; font-weight:500; padding:2px 7px; border-radius:99px; background:{{ sr.pBg }}; color:{{ sr.pC }}; width:96px; text-align:center; flex:none;">{{ sr.statusLabel }}</span>
+                    <sc-if value="{{ sr.showRetry }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ sr.retry }}" style="background:var(--red); color:#fff; border:none; border-radius:6px; padding:5px 10px; font-size:11px; font-weight:600; cursor:pointer;" style-hover="background:var(--redH);">Retry now</button>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ sr.showNote }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin:8px 0 0 35px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; line-height:1.5; background:var(--bg4); border:1px solid var(--line3); border-radius:6px; padding:7px 10px; color:var(--tx2);">{{ sr.note }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 18px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin-bottom:10px;">Artifacts</div>
+                <sc-for list="{{ artRows }}" as="ar" hint-placeholder-count="6">
+                  <div style="padding:7px 0; border-top:1px dashed var(--line2);">
+                    <div style="font-size:10.5px; color:var(--tx3);">{{ ar.k }}</div>
+                    <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; margin-top:2px; color:{{ ar.c }}; word-break:break-all;">{{ ar.v }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 18px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin-bottom:6px;">Audit trail</div>
+                <div style="max-height:340px; overflow:auto;">
+                  <sc-for list="{{ auditRows }}" as="au" hint-placeholder-count="6">
+                    <div style="display:flex; gap:9px; padding:6px 0; border-top:1px dashed var(--line2); align-items:baseline;">
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx4); width:52px; flex:none;">{{ au.time }}</span>
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:{{ au.whoC }}; width:56px; flex:none;">{{ au.who }}</span>
+                      <span style="font-size:11px; line-height:1.45; color:var(--tx1);">{{ au.msg }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewReview }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Review queue">
+          <sc-if value="{{ emptyReview }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center; padding:90px 0; color:var(--tx3);">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase;">queue clear</div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600; color:var(--tx1); margin-top:8px;">0 drafts awaiting review</div>
+              <div style="font-size:12px; margin-top:6px; max-width:380px; margin-left:auto; margin-right:auto; line-height:1.5;">Runs pause here twice — once for the blog draft after SEO scoring, and again for ad, email and social payloads before anything publishes.</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="margin-bottom:12px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); padding:2px 2px 6px;">Awaiting review · {{ reviewCount }}</div>
+                <div style="display:flex; gap:10px; overflow-x:auto; padding:2px 2px 6px;">
+                <sc-for list="{{ reviewCards }}" as="rc" hint-placeholder-count="2">
+                  <div onClick="{{ rc.sel }}" style="flex:none; width:242px; background:var(--card); border:1px solid {{ rc.border }}; border-radius:10px; padding:12px 14px; cursor:pointer; box-shadow:{{ rc.shadow }};" style-hover="border-color:var(--grn);">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;">{{ rc.id }}</span>
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.06em; text-transform:uppercase; padding:2px 6px; border-radius:99px; background:{{ rc.gateBg }}; color:{{ rc.gateC }};">{{ rc.gateLabel }}</span>
+                      <span style="flex:1;"></span>
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; color:{{ rc.scoreC }};">{{ rc.score }}</span>
+                    </div>
+                    <div style="font-size:12px; font-weight:500; margin-top:5px; line-height:1.4;">{{ rc.topic }}</div>
+                    <div style="font-size:10.5px; color:var(--tx3); margin-top:4px;">{{ rc.client }} · waiting {{ rc.waited }}</div>
+                  </div>
+                </sc-for>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:14px; align-items:start;">
+              <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px 24px; min-width:0;">
+                <sc-if value="{{ peerShow }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; gap:9px; align-items:center; background:rgba(217,119,6,.1); border:1px solid rgba(217,119,6,.3); border-radius:8px; padding:9px 12px; margin-bottom:14px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:var(--ambH); animation:nfPulse 1.4s ease-in-out infinite; flex:none;"></span>
+                    <span style="font-size:11.5px; color:var(--tx1); line-height:1.45;">{{ peerText }}</span>
+                  </div>
+                </sc-if>
+                <div style="display:flex; gap:2px; border-bottom:1px solid var(--line2); margin-bottom:16px;">
+                  <sc-for list="{{ reviewTabs }}" as="tb" hint-placeholder-count="4">
+                    <div onClick="{{ tb.go }}" style="display:flex; gap:6px; align-items:center; padding:6px 12px 10px; cursor:pointer; font-size:12.5px; font-weight:{{ tb.w }}; color:{{ tb.c }}; border-bottom:2px solid {{ tb.line }}; margin-bottom:-1px;" style-hover="color:var(--tx);">
+                      <span>{{ tb.label }}</span>
+                      <sc-if value="{{ tb.showDot }}" hint-placeholder-val="{{ false }}">
+                        <span style="width:5px; height:5px; border-radius:50%; background:var(--amb); display:inline-block;"></span>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ tabBlog }}" hint-placeholder-val="{{ true }}">
+                <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; padding:3px 8px; border-radius:5px; background:{{ selChipBg }}; color:{{ selChipC }};">{{ selChipLabel }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">{{ selWordsText }} · {{ selRevText }}</span>
+                  <span style="flex:1;"></span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">{{ selId }}</span>
+                </div>
+                <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:12px;">
+                    <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin-bottom:4px;">Title</div>
+                    <input type="text" value="{{ editT }}" onChange="{{ onEditT }}" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-size:14px; font-weight:600; background:var(--bg2); color:var(--tx); outline:none;">
+                    <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin:10px 0 4px;">Meta description <span style="color:{{ metaLenC }};">{{ metaLen }}</span></div>
+                    <textarea value="{{ editM }}" onChange="{{ onEditM }}" rows="3" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-size:12.5px; background:var(--bg2); color:var(--tx); outline:none; resize:vertical; line-height:1.5;"></textarea>
+                    <div style="display:flex; gap:8px; margin-top:10px;">
+                      <button onClick="{{ onSaveEdit }}" style="background:var(--grn); color:#fff; border:none; border-radius:7px; padding:8px 14px; font-size:12px; font-weight:600; cursor:pointer;" style-hover="background:var(--grnH);">Save edits</button>
+                      <button onClick="{{ onCancelEdit }}" style="background:none; border:1px solid var(--line5); border-radius:7px; padding:8px 14px; font-size:12px; font-weight:500; color:var(--tx2); cursor:pointer;" style-hover="background:var(--bg5);">Cancel</button>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ notEditing }}" hint-placeholder-val="{{ true }}">
+                  <div>
+                    <div style="font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:600; line-height:1.25; margin-top:12px;">{{ selTitle }}</div>
+                    <div style="font-size:12.5px; color:var(--tx2); margin-top:7px; line-height:1.5; border-left:2px solid var(--line4); padding-left:10px;">{{ selMeta }}</div>
+                  </div>
+                </sc-if>
+                <div style="display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;">
+                  <sc-for list="{{ selKeywords }}" as="kw2" hint-placeholder-count="3">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; border:1px solid var(--line4); background:var(--bg3); color:var(--tx2); padding:3px 8px; border-radius:5px;">{{ kw2 }}</span>
+                  </sc-for>
+                </div>
+                <div style="border-top:1px solid var(--line2); margin-top:14px; padding-top:14px;">
+                  <sc-for list="{{ selParas }}" as="pp" hint-placeholder-count="2">
+                    <p style="font-size:13px; line-height:1.7; color:var(--tx1); margin:0 0 12px; text-wrap:pretty;">{{ pp }}</p>
+                  </sc-for>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin:16px 0 8px;">Section outline</div>
+                  <sc-for list="{{ selOutline }}" as="oo" hint-placeholder-count="5">
+                    <div style="display:flex; gap:9px; align-items:baseline; padding:5px 0; border-top:1px dashed var(--line2);">
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--grn);">H2</span>
+                      <span style="font-size:12.5px; color:var(--tx1);">{{ oo }}</span>
+                    </div>
+                  </sc-for>
+                  <div style="display:flex; align-items:center; gap:10px; margin-top:16px; background:var(--bg4); border:1px solid var(--line3); border-radius:8px; padding:10px 12px;">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:600; letter-spacing:.08em; border:1px solid var(--line6); color:var(--tx2); border-radius:4px; padding:2px 5px; flex:none;">PDF</span>
+                    <div style="flex:1;">
+                      <div style="font-size:12px; font-weight:500;">{{ selMagnet }}</div>
+                      <div style="font-size:10.5px; color:var(--tx3); margin-top:1px;">Lead magnet · generated by the Replit app · deploys with the post</div>
+                    </div>
+                    <button onClick="{{ onPdfToggle }}" style="background:none; border:1px solid var(--line5); border-radius:6px; padding:6px 12px; font-size:11px; font-weight:500; color:var(--tx1); cursor:pointer; flex:none;" style-hover="background:var(--bg5);">{{ pdfBtnLabel }}</button>
+                  </div>
+                  <sc-if value="{{ pdfOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="border:1px solid var(--line3); border-radius:8px; margin-top:8px; overflow:hidden; background:var(--bg4);">
+                      <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--line3); padding:7px 12px;">
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx3);">lead-magnet.pdf · {{ pdfMeta }}</span>
+                        <span style="flex:1;"></span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--grn); word-break:break-all;">{{ pdfUrlText }}</span>
+                      </div>
+                      <div style="background:var(--card); border:1px solid var(--line3); box-shadow:0 2px 10px rgba(20,18,12,.08); max-width:500px; margin:16px auto; padding:24px 28px;">
+                        <div style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--tx3);">Aegis Advisory · client resource</div>
+                        <div style="font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:700; line-height:1.3; margin-top:7px;">{{ selMagnet }}</div>
+                        <div style="margin-top:12px;">
+                          <sc-for list="{{ pdfItems }}" as="pi" hint-placeholder-count="5">
+                            <div style="display:flex; gap:10px; padding:7px 0; border-bottom:1px dashed var(--line2); align-items:baseline;">
+                              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--grn); flex:none;">{{ pi.n }}</span>
+                              <span style="font-size:11.5px; color:var(--tx1); line-height:1.5;">{{ pi.t }}</span>
+                            </div>
+                          </sc-for>
+                        </div>
+                        <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--tx4); margin-top:12px;">+ 7 more items · page 1 of 3</div>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+                </div>
+                </sc-if>
+
+                <sc-if value="{{ tabAds }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <sc-if value="{{ distPending }}" hint-placeholder-val="{{ false }}">
+                    <div style="border:1px dashed var(--line5); border-radius:8px; padding:34px 24px; text-align:center; color:var(--tx3);">
+                      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase;">payloads pending</div>
+                      <div style="font-size:12px; margin-top:6px; line-height:1.55; max-width:400px; margin-left:auto; margin-right:auto;">Ad creative is generated right after content approval and WordPress deploy, then pauses here at the distribution gate for your review.</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ distReady }}" hint-placeholder-val="{{ false }}">
+                    <div>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; padding:3px 8px; border-radius:5px; background:rgba(180,83,9,.12); color:var(--amb);">meta ads · sandbox</span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">LEADGEN objective · queue meta-ads · limiter 10 req/10s</span>
+                        <span style="flex:1;"></span>
+                        <sc-if value="{{ adsEdited }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ onResetAds }}" style="background:none; border:1px solid var(--line5); border-radius:6px; padding:4px 10px; font-size:10.5px; color:var(--tx2); cursor:pointer;" style-hover="background:var(--bg5);">Reset to generated</button>
+                        </sc-if>
+                      </div>
+                      <div style="display:flex; align-items:baseline; margin:16px 0 4px;">
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">Ad headline</span>
+                        <span style="flex:1;"></span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:{{ adsHN.c }};">{{ adsHN.t }}</span>
+                      </div>
+                      <input type="text" value="{{ adsH }}" onChange="{{ onAdsH }}" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-size:13.5px; font-weight:600; background:var(--bg2); color:var(--tx); outline:none;">
+                      <div style="display:flex; align-items:baseline; margin:14px 0 4px;">
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">Primary text</span>
+                        <span style="flex:1;"></span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:{{ adsPN.c }};">{{ adsPN.t }}</span>
+                      </div>
+                      <textarea value="{{ adsP }}" onChange="{{ onAdsP }}" rows="4" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-size:12.5px; background:var(--bg2); color:var(--tx); outline:none; resize:vertical; line-height:1.55;"></textarea>
+                      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin:14px 0 4px;">Destination link</div>
+                      <input type="text" value="{{ adsL }}" onChange="{{ onAdsL }}" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; background:var(--bg2); color:var(--tx); outline:none;">
+                      <div style="font-size:10.5px; color:var(--tx3); margin-top:5px;">ActiveCampaign sign-up form — the ad's lead destination. Counters go red past Meta's recommended limits.</div>
+                      <div style="display:flex; gap:7px; margin-top:8px; align-items:center; flex-wrap:wrap;">
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--tx3);">utm enforced at publish</span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; background:var(--bg4); border:1px solid var(--line3); border-radius:5px; padding:3px 8px; color:var(--tx2); word-break:break-all;">{{ utmAds }}</span>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+                </sc-if>
+
+                <sc-if value="{{ tabEmail }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <sc-if value="{{ distPending }}" hint-placeholder-val="{{ false }}">
+                    <div style="border:1px dashed var(--line5); border-radius:8px; padding:34px 24px; text-align:center; color:var(--tx3);">
+                      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase;">payloads pending</div>
+                      <div style="font-size:12px; margin-top:6px; line-height:1.55; max-width:400px; margin-left:auto; margin-right:auto;">The campaign email is generated right after content approval and WordPress deploy, then pauses here for your review.</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ distReady }}" hint-placeholder-val="{{ false }}">
+                    <div>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; padding:3px 8px; border-radius:5px; background:rgba(38,91,143,.12); color:#265B8F;">activecampaign</span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">Subscribers (1,842) + ad-leads segment · limiter 5 req/s</span>
+                        <span style="flex:1;"></span>
+                        <sc-if value="{{ emailEdited }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ onResetEmail }}" style="background:none; border:1px solid var(--line5); border-radius:6px; padding:4px 10px; font-size:10.5px; color:var(--tx2); cursor:pointer;" style-hover="background:var(--bg5);">Reset to generated</button>
+                        </sc-if>
+                      </div>
+                      <div style="display:flex; align-items:baseline; margin:16px 0 4px;">
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">Subject line</span>
+                        <span style="flex:1;"></span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:{{ emSN.c }};">{{ emSN.t }}</span>
+                      </div>
+                      <input type="text" value="{{ emS }}" onChange="{{ onEmS }}" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-size:13.5px; font-weight:600; background:var(--bg2); color:var(--tx); outline:none;">
+                      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin:14px 0 4px;">Body</div>
+                      <textarea value="{{ emB }}" onChange="{{ onEmB }}" rows="11" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:11px 12px; font-size:12.5px; background:var(--bg2); color:var(--tx); outline:none; resize:vertical; line-height:1.6;"></textarea>
+                      <div style="font-size:10.5px; color:var(--tx3); margin-top:5px;">The first_name token is an ActiveCampaign merge tag — resolved per contact at send.</div>
+                      <div style="display:flex; gap:7px; margin-top:8px; align-items:center; flex-wrap:wrap;">
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--tx3);">utm enforced at publish</span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; background:var(--bg4); border:1px solid var(--line3); border-radius:5px; padding:3px 8px; color:var(--tx2); word-break:break-all;">{{ utmEmail }}</span>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+                </sc-if>
+
+                <sc-if value="{{ tabSocial }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <sc-if value="{{ distPending }}" hint-placeholder-val="{{ false }}">
+                    <div style="border:1px dashed var(--line5); border-radius:8px; padding:34px 24px; text-align:center; color:var(--tx3);">
+                      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase;">payloads pending</div>
+                      <div style="font-size:12px; margin-top:6px; line-height:1.55; max-width:400px; margin-left:auto; margin-right:auto;">Platform captions are generated right after content approval and WordPress deploy, then pause here for your review.</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ distReady }}" hint-placeholder-val="{{ false }}">
+                    <div>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; padding:3px 8px; border-radius:5px; background:rgba(91,79,194,.1); color:var(--vio);">organic social</span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">3 adapters · independent, non-blocking failures</span>
+                        <span style="flex:1;"></span>
+                        <sc-if value="{{ socialEdited }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ onResetSocial }}" style="background:none; border:1px solid var(--line5); border-radius:6px; padding:4px 10px; font-size:10.5px; color:var(--tx2); cursor:pointer;" style-hover="background:var(--bg5);">Reset to generated</button>
+                        </sc-if>
+                      </div>
+                      <div style="display:flex; gap:7px; margin-top:12px; align-items:center; flex-wrap:wrap;">
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--tx3);">utm enforced at publish</span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; background:var(--bg4); border:1px solid var(--line3); border-radius:5px; padding:3px 8px; color:var(--tx2); word-break:break-all;">{{ utmSocial }}</span>
+                      </div>
+                      <div style="border:1px solid var(--line3); border-radius:8px; padding:12px 14px; margin-top:14px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          <span style="width:24px; height:24px; border-radius:6px; background:#0A4D77; color:#C6E2F2; font-family:'IBM Plex Mono',monospace; font-size:9.5px; font-weight:600; display:flex; align-items:center; justify-content:center; flex:none;">LI</span>
+                          <span style="font-size:12.5px; font-weight:600;">LinkedIn</span>
+                          <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx3);">company page · w_organization_social</span>
+                          <span style="flex:1;"></span>
+                          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">{{ liN }}</span>
+                        </div>
+                        <textarea value="{{ liCap }}" onChange="{{ onLiCap }}" rows="4" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-size:12.5px; background:var(--bg2); color:var(--tx); outline:none; resize:vertical; line-height:1.55; margin-top:9px;"></textarea>
+                      </div>
+                      <div style="border:1px solid var(--line3); border-radius:8px; padding:12px 14px; margin-top:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          <span style="width:24px; height:24px; border-radius:6px; background:#1B4C8C; color:#CBDDF5; font-family:'IBM Plex Mono',monospace; font-size:9.5px; font-weight:600; display:flex; align-items:center; justify-content:center; flex:none;">FB</span>
+                          <span style="font-size:12.5px; font-weight:600;">Facebook</span>
+                          <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx3);">page token · pages_manage_posts</span>
+                          <span style="flex:1;"></span>
+                          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">{{ fbN }}</span>
+                        </div>
+                        <textarea value="{{ fbCap }}" onChange="{{ onFbCap }}" rows="3" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-size:12.5px; background:var(--bg2); color:var(--tx); outline:none; resize:vertical; line-height:1.55; margin-top:9px;"></textarea>
+                      </div>
+                      <div style="border:1px solid var(--line3); border-radius:8px; padding:12px 14px; margin-top:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          <span style="width:24px; height:24px; border-radius:6px; background:#7A2E5C; color:#F2CFE4; font-family:'IBM Plex Mono',monospace; font-size:9.5px; font-weight:600; display:flex; align-items:center; justify-content:center; flex:none;">IG</span>
+                          <span style="font-size:12.5px; font-weight:600;">Instagram</span>
+                          <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx3);">instagram_content_publish</span>
+                          <span style="flex:1;"></span>
+                          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">{{ igN }}</span>
+                        </div>
+                        <textarea value="{{ igCap }}" onChange="{{ onIgCap }}" rows="4" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-size:12.5px; background:var(--bg2); color:var(--tx); outline:none; resize:vertical; line-height:1.55; margin-top:9px;"></textarea>
+                        <div style="font-size:10.5px; color:var(--tx3); margin-top:5px;">Captions can't carry links — the CTA reads "link in bio".</div>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+                </sc-if>
+              </div>
+
+              <div>
+              <sc-if value="{{ gateContent }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex; flex-direction:column; gap:14px;">
+                <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px;">
+                  <div style="display:flex; align-items:baseline; gap:8px;">
+                    <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">SEO score</div>
+                    <span style="flex:1;"></span>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);">{{ seoThText }}</span>
+                  </div>
+                  <div style="display:flex; align-items:baseline; gap:10px; margin-top:6px;">
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:40px; font-weight:700; color:{{ seoC }};">{{ seoTotal }}</span>
+                    <span style="font-size:11.5px; font-weight:500; color:{{ seoC }};">{{ seoVerdict }}</span>
+                  </div>
+                  <sc-for list="{{ seoBars }}" as="sb" hint-placeholder-count="4">
+                    <div style="margin-top:10px;">
+                      <div style="display:flex; font-size:11px; color:var(--tx2);">
+                        <span>{{ sb.label }}</span><span style="flex:1;"></span><span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:{{ sb.c }};">{{ sb.val }}</span>
+                      </div>
+                      <div style="height:5px; background:var(--line2); border-radius:3px; margin-top:4px;">
+                        <div style="height:5px; border-radius:3px; background:{{ sb.c }}; width:{{ sb.w }};"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin:14px 0 4px;">Suggestions</div>
+                  <sc-for list="{{ seoSugs }}" as="sug" hint-placeholder-count="3">
+                    <div style="display:flex; gap:8px; padding:5px 0; border-top:1px dashed var(--line2);">
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ambH);">→</span>
+                      <span style="font-size:11.5px; line-height:1.45; color:var(--tx1);">{{ sug }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px;">
+                  <button onClick="{{ onApprove }}" style="width:100%; background:var(--grn); color:#fff; border:none; border-radius:8px; padding:11px 0; font-size:13px; font-weight:600; cursor:{{ approveCursor }}; opacity:{{ approveOpacity }};" style-hover="background:var(--grnH);">Approve → deploy</button>
+                  <button onClick="{{ onStartEdit }}" style="width:100%; margin-top:8px; background:none; border:1px solid var(--line5); border-radius:8px; padding:10px 0; font-size:12.5px; font-weight:500; color:var(--tx1); cursor:pointer;" style-hover="background:var(--bg5);">Edit draft</button>
+                  <sc-if value="{{ notRevising }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ onStartRevise }}" style="width:100%; margin-top:8px; background:none; border:1px solid var(--redL); border-radius:8px; padding:10px 0; font-size:12.5px; font-weight:500; color:var(--red); cursor:pointer;" style-hover="background:var(--redT);">Request revision</button>
+                  </sc-if>
+                  <sc-if value="{{ revising }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:10px;">
+                      <textarea value="{{ revNote }}" onChange="{{ onRevNote }}" rows="3" placeholder="What should the model change? e.g. tighten keyword usage in intro, trim meta description" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:9px 11px; font-size:12px; background:var(--bg2); color:var(--tx); outline:none; resize:vertical; line-height:1.5;"></textarea>
+                      <div style="display:flex; gap:8px; margin-top:8px;">
+                        <button onClick="{{ onConfirmRevise }}" style="flex:1; background:var(--red); color:#fff; border:none; border-radius:7px; padding:9px 0; font-size:12px; font-weight:600; cursor:pointer;" style-hover="background:var(--redH);">Send back to generation</button>
+                        <button onClick="{{ onCancelRevise }}" style="background:none; border:1px solid var(--line5); border-radius:7px; padding:9px 12px; font-size:12px; color:var(--tx2); cursor:pointer;" style-hover="background:var(--bg5);">Cancel</button>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <div style="font-size:10.5px; color:var(--tx3); margin-top:10px; line-height:1.5;">{{ approveNote }}</div>
+                </div>
+              </div>
+              </sc-if>
+              <sc-if value="{{ gateDist }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; flex-direction:column; gap:14px;">
+                <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px;">
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--cyn);">Distribution gate</div>
+                  <div style="font-size:11px; color:var(--tx3); margin-top:6px; line-height:1.5;">Generated from the approved post. Publish jobs are not enqueued until you approve below.</div>
+                  <div style="margin-top:8px;">
+                    <sc-for list="{{ distChannels }}" as="dch" hint-placeholder-count="3">
+                      <div onClick="{{ dch.goTab }}" style="padding:10px 0; border-top:1px solid var(--line2); cursor:pointer;" style-hover="background:var(--bg2);">
+                        <div style="display:flex; align-items:center; gap:7px;">
+                          <span style="font-size:12.5px; font-weight:500;">{{ dch.name }}</span>
+                          <sc-if value="{{ dch.showEdited }}" hint-placeholder-val="{{ false }}">
+                            <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.06em; text-transform:uppercase; background:rgba(180,83,9,.12); color:var(--amb); padding:2px 6px; border-radius:99px;">edited</span>
+                          </sc-if>
+                          <span style="flex:1;"></span>
+                          <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:{{ dch.stateC }};">{{ dch.stateText }}</span>
+                        </div>
+                        <div style="font-size:10.5px; color:var(--tx3); margin-top:3px;">{{ dch.sub }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px;">
+                  <button onClick="{{ onPublishAll }}" style="width:100%; background:var(--grn); color:#fff; border:none; border-radius:8px; padding:11px 0; font-size:13px; font-weight:600; cursor:{{ approveCursor }}; opacity:{{ approveOpacity }};" style-hover="background:var(--grnH);">Approve &amp; Publish All</button>
+                  <div style="font-size:10.5px; color:var(--tx3); margin-top:10px; line-height:1.5;">{{ publishNote }}</div>
+                </div>
+              </div>
+              </sc-if>
+              </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewConns }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Connections">
+          <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:14px;">
+            <sc-for list="{{ connRows }}" as="cn" hint-placeholder-count="8">
+              <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:15px 16px; display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <span style="width:33px; height:33px; border-radius:8px; background:{{ cn.gbg }}; color:{{ cn.gc }}; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:11.5px; display:flex; align-items:center; justify-content:center; flex:none;">{{ cn.glyph }}</span>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-size:13.5px; font-weight:600;">{{ cn.name }}</div>
+                    <div style="font-size:10.5px; color:var(--tx3);">{{ cn.cat }} · {{ cn.phase }}</div>
+                  </div>
+                  <span style="display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.06em; text-transform:uppercase; font-weight:500; padding:3px 8px; border-radius:99px; background:{{ cn.stBg }}; color:{{ cn.stC }};">{{ cn.statusLabel }}</span>
+                </div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; background:var(--bg4); border:1px solid var(--line3); border-radius:6px; padding:7px 10px; color:var(--tx2); word-break:break-all;">{{ cn.cred }}</div>
+                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                  <sc-for list="{{ cn.scopes }}" as="sp" hint-placeholder-count="2">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; border:1px solid var(--line4); color:var(--tx3); padding:2px 7px; border-radius:99px;">{{ sp }}</span>
+                  </sc-for>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:10.5px; color:var(--tx3); flex:1;">{{ cn.verified }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--grn);">{{ cn.testMsg }}</span>
+                  <button onClick="{{ cn.onTest }}" style="background:none; border:1px solid var(--line5); border-radius:6px; padding:5px 11px; font-size:11px; font-weight:500; color:var(--tx1); cursor:pointer;" style-hover="background:var(--bg5);">Test</button>
+                  <sc-if value="{{ cn.showFix }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ cn.onFix }}" style="background:var(--red); color:#fff; border:none; border-radius:6px; padding:6px 11px; font-size:11px; font-weight:600; cursor:pointer;" style-hover="background:var(--redH);">Reconnect</button>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:14px; font-size:11px; color:var(--tx3); line-height:1.55; max-width:640px;">All tokens are AES-256-GCM encrypted at rest with a master key from the environment — never stored in plaintext. Instagram's expired token demonstrates the non-blocking failure path: social publishing continues on LinkedIn + Facebook and flags IG for reconnection.</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewSettings }}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Settings">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; max-width:980px;">
+
+            <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">Workflow gates</div>
+              <div style="display:flex; align-items:baseline; gap:10px; margin-top:14px;">
+                <span style="font-size:12.5px; font-weight:500; flex:1;">SEO auto-approve threshold</span>
+                <span style="font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:600; color:var(--grn);">{{ thVal }}</span>
+              </div>
+              <input type="range" min="50" max="100" step="1" value="{{ thVal }}" onChange="{{ onTh }}" style="width:100%; accent-color:var(--grn); margin-top:6px;">
+              <div style="display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx4);"><span>50</span><span>100</span></div>
+              <div style="display:flex; align-items:center; gap:12px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line2);">
+                <div style="flex:1;">
+                  <div style="font-size:12.5px; font-weight:500;">Auto-approve above threshold</div>
+                  <div style="font-size:10.5px; color:{{ autoNoteC }}; margin-top:3px; line-height:1.45;">{{ autoNote }}</div>
+                </div>
+                <div onClick="{{ onAutoToggle }}" style="width:38px; height:22px; border-radius:99px; background:{{ autoTrack }}; position:relative; cursor:pointer; flex:none; transition:background .15s;">
+                  <div style="width:16px; height:16px; border-radius:50%; background:#FDFDFD; position:absolute; top:3px; left:{{ autoKnob }}; transition:left .15s; box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line2);">
+                <div style="flex:1;">
+                  <div style="font-size:12.5px; font-weight:500;">Max concurrent workflows</div>
+                  <div style="font-size:10.5px; color:var(--tx3); margin-top:3px;">BullMQ worker concurrency per queue</div>
+                </div>
+                <button onClick="{{ onConcDown }}" style="width:26px; height:26px; border:1px solid var(--line5); background:none; border-radius:6px; cursor:pointer; color:var(--tx1); font-size:14px; line-height:1;" style-hover="background:var(--bg5);">–</button>
+                <span style="font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:600; width:22px; text-align:center;">{{ concVal }}</span>
+                <button onClick="{{ onConcUp }}" style="width:26px; height:26px; border:1px solid var(--line5); background:none; border-radius:6px; cursor:pointer; color:var(--tx1); font-size:14px; line-height:1;" style-hover="background:var(--bg5);">+</button>
+              </div>
+              <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--line2);">
+                <div style="font-size:12.5px; font-weight:500;">Retry policy</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--tx2); margin-top:5px; background:var(--bg4); border:1px solid var(--line3); border-radius:6px; padding:7px 10px;">3 attempts · backoff 2s → 4s → 8s · terminal failure posts “Workflow Failed” to Karbon timeline</div>
+              </div>
+              <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--line2);">
+                <div style="font-size:12.5px; font-weight:500;">Queue rate limits</div>
+                <div style="font-size:10.5px; color:var(--tx3); margin-top:3px;">BullMQ limiters on strict APIs — prevents HTTP 429</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--tx2); margin-top:5px; background:var(--bg4); border:1px solid var(--line3); border-radius:6px; padding:7px 10px;">meta-ads · 10 req / 10s&nbsp;&nbsp;·&nbsp;&nbsp;activecampaign · 5 req / s</div>
+              </div>
+            </div>
+
+            <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">Global brand voice</div>
+              <div style="font-size:10.5px; color:var(--tx3); margin-top:6px; line-height:1.5;">Injected into every generation request — sent as brand_voice in the Replit payload and prepended to the GPT-4o system prompt for distribution copy.</div>
+              <textarea value="{{ brandVoice }}" onChange="{{ onBrandVoice }}" rows="5" style="width:100%; border:1px solid var(--line5); border-radius:7px; padding:10px 12px; font-size:12px; background:var(--bg2); color:var(--tx); outline:none; resize:vertical; line-height:1.6; margin-top:10px;"></textarea>
+              <div style="display:flex; align-items:baseline; margin-top:6px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx4);">{{ bvCount }}</span>
+                <span style="flex:1;"></span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:{{ bvSavedC }};">{{ bvSaved }}</span>
+              </div>
+              <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--line2);">
+                <div style="font-size:12.5px; font-weight:500;">UTM enforcement</div>
+                <div style="font-size:10.5px; color:var(--tx3); margin-top:3px; line-height:1.5;">Adapters append channel parameters to every outbound link at publish — manual edits can't strip them.</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx2); margin-top:6px; background:var(--bg4); border:1px solid var(--line3); border-radius:6px; padding:8px 10px; line-height:1.8;">meta_ads · paid_social<br>activecampaign · email<br>linkedin | facebook · organic_social<br>utm_campaign = run slug — all channels</div>
+              </div>
+            </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3);">Karbon trigger</div>
+                <div style="font-size:11px; color:var(--tx3); margin-top:10px;">Webhook endpoint</div>
+                <div style="display:flex; gap:8px; margin-top:5px;">
+                  <div style="flex:1; font-family:'IBM Plex Mono',monospace; font-size:10.5px; background:var(--bg4); border:1px solid var(--line3); border-radius:6px; padding:8px 10px; color:var(--tx1); word-break:break-all;">POST /api/webhooks/karbon</div>
+                  <button onClick="{{ onCopyHook }}" style="background:none; border:1px solid var(--line5); border-radius:6px; padding:0 12px; font-size:11px; font-weight:500; color:var(--tx1); cursor:pointer;" style-hover="background:var(--bg5);">{{ copyLabel }}</button>
+                </div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--tx4); margin-top:5px;">HMAC middleware verifies signature before body parse · binds 0.0.0.0:$PORT on Railway</div>
+                <div style="font-size:11px; color:var(--tx3); margin-top:12px;">HMAC signing secret (SHA-256)</div>
+                <div style="display:flex; gap:8px; margin-top:5px;">
+                  <div style="flex:1; font-family:'IBM Plex Mono',monospace; font-size:10.5px; background:var(--bg4); border:1px solid var(--line3); border-radius:6px; padding:8px 10px; color:var(--tx1);">{{ secretText }}</div>
+                  <button onClick="{{ onSecret }}" style="background:none; border:1px solid var(--line5); border-radius:6px; padding:0 12px; font-size:11px; font-weight:500; color:var(--tx1); cursor:pointer;" style-hover="background:var(--bg5);">{{ secretBtn }}</button>
+                </div>
+                <div style="font-size:11px; color:var(--tx3); margin-top:12px;">Idempotency</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; background:var(--bg4); border:1px solid var(--line3); border-radius:6px; padding:8px 10px; color:var(--tx1); margin-top:5px;">Redis SETNX idem:{workItemId}:{stageId} · TTL 24h — duplicate deliveries ignored</div>
+                <div style="font-size:11px; color:var(--tx3); margin-top:12px;">Trigger stage</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; background:var(--bg4); border:1px solid var(--line3); border-radius:6px; padding:8px 10px; color:var(--tx1); margin-top:5px;">Work item → “Marketing Content — Ready”</div>
+                <div style="font-size:10.5px; color:var(--amb2); margin-top:10px; line-height:1.5;">Live webhook is Phase 3 — until then, use “Simulate Karbon trigger” which posts an identical signed payload.</div>
+              </div>
+
+              <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--tx3); margin-bottom:4px;">Active adapters</div>
+                <sc-for list="{{ adRows }}" as="ad" hint-placeholder-count="4">
+                  <div style="display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--line2);">
+                    <div style="flex:1;">
+                      <div style="display:flex; align-items:center; gap:7px;">
+                        <span style="font-size:12.5px; font-weight:500;">{{ ad.name }}</span>
+                        <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:.06em; text-transform:uppercase; padding:2px 6px; border-radius:99px; background:{{ ad.phBg }}; color:{{ ad.phC }};">{{ ad.phase }}</span>
+                      </div>
+                      <div style="font-size:10.5px; color:var(--tx3); margin-top:2px;">{{ ad.desc }}</div>
+                    </div>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:{{ ad.stateC }};">{{ ad.stateText }}</span>
+                    <div onClick="{{ ad.onToggle }}" style="width:38px; height:22px; border-radius:99px; background:{{ ad.track }}; position:relative; cursor:pointer; flex:none; transition:background .15s;">
+                      <div style="width:16px; height:16px; border-radius:50%; background:#FDFDFD; position:absolute; top:3px; left:{{ ad.knob }}; transition:left .15s; box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+                    </div>
+                  </div>
+                </sc-for>
+                <div style="font-size:10.5px; color:var(--tx3); margin-top:10px; line-height:1.5;">Disabled adapters are skipped by the saga — downstream stages still run. WordPress is the active CMS adapter; Ghost + Webflow ship later via the same PublisherAdapter interface.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;simSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.25,&quot;max&quot;:4,&quot;step&quot;:0.25,&quot;unit&quot;:&quot;×&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Simulation&quot;},&quot;seoThreshold&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:80,&quot;min&quot;:50,&quot;max&quot;:100,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Workflow&quot;},&quot;autoApprove&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Workflow&quot;},&quot;darkMode&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Theme&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.STAGES = [
+      { key: 'trigger',  label: 'Trigger',   strip: 'TRG', sys: 'Karbon webhook',      dur: 1 },
+      { key: 'research', label: 'Dispatch',  strip: 'REQ', sys: 'Replit generator · Bearer auth', dur: 2 },
+      { key: 'draft',    label: 'Generate',  strip: 'GEN', sys: 'Replit app · 90s timeout',       dur: 5 },
+      { key: 'seo',      label: 'SEO score', strip: 'SEO', sys: 'Internal scorer',     dur: 2 },
+      { key: 'review',   label: 'Review',    strip: 'REV', sys: 'Human gate',          dur: 0 },
+      { key: 'deploy',   label: 'Deploy',    strip: 'DEP', sys: 'WordPress REST',      dur: 3 },
+      { key: 'distgen',  label: 'Dist. gen', strip: 'GEN', sys: 'OpenAI GPT-4o',       dur: 3 },
+      { key: 'distreview', label: 'Dist. review', strip: 'DRV', sys: 'Human gate',     dur: 0 },
+      { key: 'ads',      label: 'Ads',       strip: 'ADS', sys: 'Meta Marketing API',  dur: 3 },
+      { key: 'email',    label: 'Email',     strip: 'EML', sys: 'ActiveCampaign',      dur: 2 },
+      { key: 'social',   label: 'Social',    strip: 'SOC', sys: 'LinkedIn · FB · IG',  dur: 3 },
+      { key: 'callback', label: 'Callback',  strip: 'CBK', sys: 'Karbon Timeline API',          dur: 1 }
+    ];
+    this.SC = { done:'var(--grn)', active:'var(--ambH)', retry:'var(--ambH)', gate:'var(--vio)', pending:'var(--seg)', failed:'var(--red)', partial:'var(--amb2)', skipped:'var(--skip)' };
+    this.TINT = { done: 'rgba(19,122,91,.12)', active: 'rgba(217,119,6,.14)', retry: 'rgba(217,119,6,.14)', gate: 'rgba(91,79,194,.14)', failed: 'rgba(179,38,30,.12)', partial: 'rgba(161,98,7,.14)', skipped: 'rgba(128,133,128,.14)' };
+    this.THEMES = {
+      light: { bg: '#f4f2ed', bg2: '#fbfaf6', card: '#ffffff', bg3: '#f8f6f0', bg4: '#f7f5ef', bg5: '#f1efe7', line: '#e7e4da', line2: '#f0ede4', line3: '#ece9df', line4: '#e4e1d7', line5: '#d8d4c8', line6: '#c9c4b4', seg: '#e4e0d3', dot: '#d9d5c7', skip: '#c6c1b2', tx: '#1a1d20', tx1: '#3a3e44', tx2: '#5c6470', tx3: '#8a8578', tx4: '#bdb8a9', grn: '#137a5b', grnH: '#0e5f47', amb: '#b45309', ambH: '#d97706', amb2: '#a16207', vio: '#5b4fc2', red: '#b3261e', redH: '#8e1b15', cyn: '#0e7490', redT: '#faf1f0', redL: '#e4c7c5' },
+      dark: { bg: '#101214', bg2: '#16191d', card: '#1b2025', bg3: '#22262c', bg4: '#15181c', bg5: '#262b32', line: '#2b3038', line2: '#262b32', line3: '#2b3038', line4: '#303640', line5: '#3c434d', line6: '#4a515b', seg: '#333941', dot: '#3f464f', skip: '#4c535c', tx: '#e8e6e1', tx1: '#c6c4be', tx2: '#9aa0aa', tx3: '#7c828e', tx4: '#575d67', grn: '#1f9d76', grnH: '#27b489', amb: '#e0913c', ambH: '#eca84f', amb2: '#cfa14a', vio: '#9187ea', red: '#e0625a', redH: '#eb7a72', cyn: '#38b2d2', redT: 'rgba(224,98,90,.12)', redL: '#5c3936' }
+    };
+    this.STATUS = {
+      running:  { label: 'Running',   c: 'var(--amb)', bg: 'rgba(180,83,9,.11)' },
+      review:   { label: 'In review', c: 'var(--vio)', bg: 'rgba(91,79,194,.11)' },
+      distreview: { label: 'Dist. review', c: 'var(--cyn)', bg: 'rgba(14,116,144,.11)' },
+      failed:   { label: 'Failed',    c: 'var(--red)', bg: 'rgba(179,38,30,.09)' },
+      complete: { label: 'Complete',  c: 'var(--grn)', bg: 'rgba(19,122,91,.11)' }
+    };
+    this.TOPICS = [
+      { t: 'Grant funding for workplace wellbeing programmes', c: 'TrueNorth EHS', k: ['wellbeing grants', 'workplace health funding', 'EHS budget'] },
+      { t: 'Insurance cost optimisation for construction safety firms', c: 'Sentinel Safety Group', k: ['liability insurance', 'construction safety costs', 'premium reduction'] },
+      { t: 'Succession planning for family-run compliance firms', c: 'Aegis Risk Partners', k: ['succession planning', 'compliance firm valuation', 'exit strategy'] },
+      { t: 'VAT pitfalls in cross-border safety training', c: 'Halcyon Occupational Health', k: ['VAT training services', 'cross-border tax', 'safety training finance'] }
+    ];
+    this.simCount = 0;
+    this._timeouts = [];
+    this.USERS = [
+      { id: 'u1', handle: 'j.mercer', first: 'Jude', last: 'Mercer', initials: 'JM', email: 'jmercer@aegisadvisory.co.uk', role: 'admin' },
+      { id: 'u2', handle: 'd.okafor', first: 'Dana', last: 'Okafor', initials: 'DO', email: 'dokafor@aegisadvisory.co.uk', role: 'reviewer' },
+      { id: 'u3', handle: 'm.reyes', first: 'Marcus', last: 'Reyes', initials: 'MR', email: 'mreyes@aegisadvisory.co.uk', role: 'editor' }
+    ];
+    this.HUMANS = this.USERS.map(u => u.handle);
+    let savedTheme = null;
+    let savedUser = null;
+    try { savedTheme = localStorage.getItem('nf-theme'); savedUser = localStorage.getItem('nf-user'); } catch (e) {}
+    this.state = {
+      view: 'runs', selectedRunId: null, reviewSelId: null, t: 0, toast: null,
+      dark: savedTheme === 'dark' ? true : (savedTheme === 'light' ? false : null),
+      modalRunId: null, pdfOpen: false, bvSavedAt: 0,
+      me: this.USERS.some(u => u.id === savedUser) ? savedUser : null,
+      loginEmail: '', loginPw: '', loginErr: '',
+      brandVoice: 'Write for owner-managers of health & safety businesses. Lead with financial mechanics — figures, thresholds, deadlines. Plain UK English. No hype, no filler, no exclamation marks. Every paragraph must help the reader price, plan or claim something; cut anything that does not.',
+      threshold: null, autoApprove: null, concurrency: 3,
+      editing: false, editT: '', editM: '', revising: false, revNote: '',
+      copied: false, secretShown: false, igFixed: false,
+      adapters: { ads: true, email: true, social: true },
+      conns: this.seedConns(),
+      runs: this.seedRuns()
+    };
+  }
+
+  mkStages() { return this.STAGES.map(() => ({ status: 'pending', attempts: 1, ms: 0, note: '' })); }
+
+  mkDraft(run) {
+    const t = run.topic;
+    return {
+      title: t.charAt(0).toUpperCase() + t.slice(1) + ': The 2026 Guide',
+      meta: 'How ' + run.client + ' and firms like it stabilise cash flow, price retainers and claim overlooked reliefs — with a downloadable 12-point financial health checklist.',
+      magnet: 'Financial Health Checklist — 12-point PDF',
+      words: 1180 + Math.floor(Math.random() * 260)
+    };
+  }
+
+  slugOf(topic) { return topic.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').slice(0, 5).join('-'); }
+
+  mkDist(run) {
+    const url = 'https://' + (run.artifacts.blogUrl || ('blog.aegisadvisory.co.uk/' + this.slugOf(run.topic)));
+    const mag = 'https://' + (run.artifacts.magnetUrl || ('blog.aegisadvisory.co.uk/downloads/' + this.slugOf(run.topic).split('-').slice(0, 3).join('-') + '-checklist.pdf'));
+    const T = run.topic.charAt(0).toUpperCase() + run.topic.slice(1);
+    const magName = run.draft ? run.draft.magnet.split(' — ')[0] : 'Financial Health Checklist';
+    const teaser = run.draft ? run.draft.meta : '';
+    const tags = run.keywords.slice(0, 2).map(k => '#' + k.replace(/[^a-z0-9 ]/gi, '').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')).join(' ');
+    return {
+      ads: {
+        headline: 'Free: ' + magName,
+        primary: 'Project income is volatile. Get the 12-point checklist our advisory team uses to stabilise cash flow — free download.',
+        link: 'aegis.activehosted.com/f/' + this.slugOf(run.topic).split('-').slice(0, 3).join('-')
+      },
+      email: {
+        subject: 'Your ' + magName + ' (free download inside)',
+        body: 'Hi {{ first_name }},\n\nNew on the blog: ' + T + '.\n\n' + teaser + '\n\nDownload the ' + magName + ':\n' + mag + '\n\nRead the full post:\n' + url + '\n\n— The Aegis Advisory team'
+      },
+      social: {
+        linkedin: 'New guide: ' + T + '.\n\n' + teaser + '\n\nFull breakdown + the free checklist: ' + url,
+        facebook: T + ' — new on the blog. We break down the numbers most firms never look at, plus a free 12-point checklist. Read it: ' + url,
+        instagram: 'New on the blog: ' + T + '. The full guide + free checklist — link in bio.\n\n' + tags + ' #AdvisoryFirm'
+      }
+    };
+  }
+
+  computeSeo(run) {
+    const r = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+    const boost = run.seoBoost || 0;
+    const kw = Math.min(96, r(58, 80) + boost), read = Math.min(97, r(72, 92) + Math.floor(boost / 2));
+    const head = Math.min(98, r(74, 95)), meta = Math.min(95, r(56, 84) + boost);
+    const total = Math.round(kw * .3 + read * .3 + head * .2 + meta * .2);
+    const sugs = [];
+    if (kw < 75) sugs.push('Primary keyword missing from the first 100 words — add to intro paragraph.');
+    if (kw < 85) sugs.push('Keyword density 0.6% — target 1–1.5% for “' + run.keywords[0] + '”.');
+    if (meta < 75) sugs.push('Meta description is 172 chars — trim to ≤155 so it doesn’t truncate.');
+    if (read < 82) sugs.push('Readability: 4 sentences exceed 28 words — split them.');
+    if (head < 85) sugs.push('Add the secondary keyword to at least one H2.');
+    if (!sugs.length) sugs.push('Add an internal link to the services page in the closing section.');
+    return { total, kw, read, head, meta, sugs };
+  }
+
+  log(run, who, msg) { run.audit.push({ t: Date.now(), who, msg }); }
+
+  mkRun(id, karbon, topic, client, keywords) {
+    return {
+      id, karbon, topic, client, keywords, tone: 'Authoritative, plainspoken',
+      createdAt: Date.now(), updated: Date.now(), status: 'running',
+      stageIdx: 0, stageTicks: 0, stages: this.mkStages(),
+      seo: null, seoBoost: 0, revisions: 0, draft: null, reviewSince: null, reviewWait: 0,
+      dist: null, distOrig: null, distEdited: { ads: false, email: false, social: false }, distSince: null,
+      igFail: !this.state || !this.state.igFixed,
+      artifacts: { blogUrl: null, magnetUrl: null, adId: null, campaignId: null, social: null, karbonNote: null },
+      audit: []
+    };
+  }
+
+  seedRuns() {
+    const now = Date.now(), M = 60000;
+    // WF-1041 — running at draft
+    const r41 = this.mkRun('WF-1041', 'KB-2214', 'Cash flow forecasting for occupational health providers', 'Halcyon Occupational Health', ['cash flow forecast', 'occupational health finance', 'revenue planning']);
+    r41.createdAt = now - 3 * M; r41.updated = now - 20000; r41.stageIdx = 2; r41.stageTicks = 1;
+    r41.stages[0] = { status: 'done', attempts: 1, ms: 240, note: 'Karbon webhook verified (HMAC ✓) — topic, keywords, tone extracted' };
+    r41.stages[1] = { status: 'done', attempts: 1, ms: 3400, note: 'POST nexus-gen.replit.app/api/generate · Bearer ✓ · payload: topic, keywords, tone + brand voice (272 chars)' };
+    r41.stages[2].status = 'active';
+    r41.audit = [
+      { t: now - 3 * M, who: 'system', msg: 'Run created — Karbon stage “Marketing Content — Ready”' },
+      { t: now - 3 * M + 9000, who: 'api', msg: 'Karbon webhook verified (HMAC ✓) — payload parsed' },
+      { t: now - 2 * M, who: 'api', msg: 'ReplitGenerationAdapter: POST /api/generate · Bearer ✓ · awaiting response (timeout 90s)' }
+    ];
+    // WF-1040 — awaiting review
+    const r40 = this.mkRun('WF-1040', 'KB-2211', 'Financial planning for health & safety consultancies', 'Sentinel Safety Group', ['health & safety consultancy finance', 'retainer pricing', 'R&D tax relief']);
+    r40.createdAt = now - 26 * M; r40.updated = now - 14 * M; r40.stageIdx = 4; r40.status = 'review'; r40.reviewSince = now - 14 * M;
+    r40.deployFail = 'retry';
+    [0, 1, 2, 3].forEach(i => { r40.stages[i].status = 'done'; r40.stages[i].ms = [260, 3800, 4600, 1100][i]; });
+    r40.stages[1].note = 'POST nexus-gen.replit.app/api/generate · Bearer ✓ · payload: topic, keywords, tone + brand voice (272 chars)';
+    r40.stages[2].note = 'Replit response 200 OK in 41s — 1,264-word post + lead magnet URL parsed · draft persisted (status: draft)';
+    r40.stages[3].note = 'SEO score 84/100 · 3 suggestions';
+    r40.stages[4].status = 'gate';
+    r40.seo = { total: 84, kw: 78, read: 88, head: 92, meta: 71, sugs: ['Meta description is 172 chars — trim to ≤155 so it doesn’t truncate.', 'Keyword density 0.8% — target 1–1.5% for “health & safety consultancy finance”.', 'Add an internal link to the services page in the closing section.'] };
+    r40.draft = { title: 'Financial Planning for Health & Safety Consultancies: The 2026 Guide', meta: 'How H&S consultancies stabilise cash flow, price retainers and claim R&D relief most firms never touch — with a downloadable 12-point financial health checklist.', magnet: 'H&S Consultancy Financial Health Checklist — 12-point PDF', words: 1264 };
+    r40.audit = [
+      { t: now - 26 * M, who: 'system', msg: 'Run created — Karbon stage “Marketing Content — Ready”' },
+      { t: now - 25 * M, who: 'api', msg: 'Karbon webhook verified (HMAC ✓) — payload parsed' },
+      { t: now - 21 * M, who: 'api', msg: 'ReplitGenerationAdapter: POST /api/generate · Bearer ✓ (brand voice injected)' },
+      { t: now - 16 * M, who: 'api', msg: 'Replit response 200 OK in 41s — 1,264-word post + magnet URL parsed · draft persisted' },
+      { t: now - 14 * M, who: 'system', msg: 'SEO score 84/100 · 3 suggestions' },
+      { t: now - 14 * M, who: 'system', msg: 'Paused — awaiting human review (threshold 80, auto-approve off)' }
+    ];
+    // WF-1039 — failed at deploy
+    const r39 = this.mkRun('WF-1039', 'KB-2209', 'Pricing retainers for fire risk assessment firms', 'Aegis Risk Partners', ['fire risk assessment pricing', 'retainer model', 'recurring revenue']);
+    r39.createdAt = now - 64 * M; r39.updated = now - 41 * M; r39.status = 'failed'; r39.stageIdx = 5;
+    [0, 1, 2, 3, 4].forEach(i => { r39.stages[i].status = 'done'; r39.stages[i].ms = [220, 3600, 4400, 1000, 480000][i]; });
+    r39.stages[5] = { status: 'failed', attempts: 3, ms: 14200, note: 'POST /wp-json/wp/v2/posts → 502 Bad Gateway ×3 · backoff exhausted (2s → 4s → 8s) · parked · “Workflow Failed” posted to Karbon timeline', err: 'POST https://blog.aegisadvisory.co.uk/wp-json/wp/v2/posts → HTTP 502 Bad Gateway\n{"code":"http_502","message":"upstream timed out (edge-cache)","request_id":"wp_7f31c2"}\nattempt 1 → 502 · attempt 2 (+2s) → 502 · attempt 3 (+4s) → 502 — retries exhausted · parked · "Workflow Failed" → Karbon timeline' };
+    r39.seo = { total: 88, kw: 86, read: 90, head: 92, meta: 82, sugs: ['Add an internal link to the services page in the closing section.'] };
+    r39.draft = { title: 'Pricing Retainers for Fire Risk Assessment Firms: The 2026 Guide', meta: 'Move fire risk assessment work from one-off audits to recurring retainers — pricing bands, scope guards and renewal maths.', magnet: 'Retainer Pricing Worksheet — 12-point PDF', words: 1312 };
+    r39.artifacts.karbonNote = 'KB-2209 — “Workflow Failed” note on timeline';
+    r39.audit = [
+      { t: now - 64 * M, who: 'system', msg: 'Run created — Karbon stage “Marketing Content — Ready”' },
+      { t: now - 58 * M, who: 'api', msg: 'Replit response 200 OK in 47s — 1,312-word post + magnet URL parsed · draft persisted' },
+      { t: now - 56 * M, who: 'system', msg: 'SEO score 88/100 · 1 suggestion' },
+      { t: now - 48 * M, who: 'j.mercer', msg: 'Draft approved — content moves to deploy' },
+      { t: now - 44 * M, who: 'api', msg: 'POST /wp-json/wp/v2/posts → 502 Bad Gateway · retry 1/3 in 2s' },
+      { t: now - 43 * M, who: 'api', msg: 'Retry 2/3 → 502 Bad Gateway · backing off 4s' },
+      { t: now - 41 * M, who: 'api', msg: 'Retry 3/3 → 502 Bad Gateway · attempts exhausted — run parked as failed' },
+      { t: now - 40 * M, who: 'api', msg: 'Karbon Timeline API: “Workflow Failed — deploy exhausted 3 retries (502)” posted to KB-2209 · team notified' }
+    ];
+    // WF-1038 — complete (partial social)
+    const r38 = this.mkRun('WF-1038', 'KB-2208', 'R&D tax relief for safety equipment manufacturers', 'Northline Compliance', ['R&D tax relief', 'safety equipment manufacturing', 'innovation credit']);
+    r38.createdAt = now - 172 * M; r38.updated = now - 118 * M; r38.status = 'complete'; r38.stageIdx = 12;
+    r38.stages.forEach((s, i) => { s.status = 'done'; s.ms = [230, 3700, 4800, 950, 1260000, 2600, 3100, 540000, 2900, 1700, 2400, 400][i]; });
+    r38.stages[6].note = 'Ad creative, campaign email + 3 platform captions generated from the approved post';
+    r38.stages[7].note = 'Approved & published by j.mercer · overrides: email';
+    r38.stages[10].status = 'partial';
+    r38.stages[10].note = 'LinkedIn ✓ · Facebook ✓ · Instagram ✕ (token expired) — non-blocking, flagged in Connections';
+    r38.stages[10].err = 'POST graph.facebook.com/v19.0/17845/media_publish → HTTP 400\n{"error":{"type":"OAuthException","code":190,"message":"Error validating access token: session has expired"}}\nnon-blocking — LinkedIn ✓ Facebook ✓ · reconnect Instagram in Connections';
+    r38.seo = { total: 88, kw: 84, read: 91, head: 94, meta: 80, sugs: [] };
+    r38.draft = { title: 'R&D Tax Relief for Safety Equipment Manufacturers: The 2026 Guide', meta: 'Method development counts. How safety equipment makers claim R&D relief on testing rigs, materials and certification work.', magnet: 'R&D Relief Eligibility Checklist — 12-point PDF', words: 1342 };
+    r38.artifacts = {
+      blogUrl: 'blog.aegisadvisory.co.uk/rd-tax-relief-safety-equipment',
+      magnetUrl: 'blog.aegisadvisory.co.uk/downloads/rd-relief-checklist.pdf',
+      adId: 'camp_2371 · adset_5488 · ad_9022 (sandbox)',
+      campaignId: 'cmp_5493 — sent to 1,842 contacts',
+      social: 'LinkedIn ✓ · Facebook ✓ · Instagram ✕',
+      karbonNote: 'KB-2208 — timeline note posted (links + summary)'
+    };
+    r38.audit = [
+      { t: now - 172 * M, who: 'system', msg: 'Run created — Karbon stage “Marketing Content — Ready”' },
+      { t: now - 165 * M, who: 'api', msg: 'ReplitGenerationAdapter: POST /api/generate · Bearer ✓ (brand voice injected)' },
+      { t: now - 158 * M, who: 'api', msg: 'Replit response 200 OK in 52s — 1,342-word post + magnet URL parsed · draft persisted' },
+      { t: now - 156 * M, who: 'system', msg: 'SEO score 88/100 · 2 suggestions' },
+      { t: now - 135 * M, who: 'j.mercer', msg: 'Draft approved — content moves to deploy' },
+      { t: now - 132 * M, who: 'api', msg: 'POST /wp-json/wp/v2/posts → 201 Created · live URL stored' },
+      { t: now - 131 * M, who: 'api', msg: 'GPT-4o: distribution payloads generated — ad creative, email, LinkedIn/FB/IG captions' },
+      { t: now - 130 * M, who: 'j.mercer', msg: 'Manual overrides saved — email' },
+      { t: now - 129 * M, who: 'j.mercer', msg: 'Distribution approved — publish jobs enqueued (meta-ads · activecampaign · social)' },
+      { t: now - 128 * M, who: 'api', msg: 'Meta: LEADGEN campaign + ad set + creative created (sandbox) → ActiveCampaign form' },
+      { t: now - 124 * M, who: 'api', msg: 'ActiveCampaign: campaign cmp_5493 sent — 1,842 subscribers + ad-leads segment' },
+      { t: now - 121 * M, who: 'api', msg: 'LinkedIn ✓ · Facebook ✓ · Instagram ✕ (token expired) — non-blocking' },
+      { t: now - 118 * M, who: 'api', msg: 'Karbon Timeline API: note posted to KB-2208 — links + completion summary' },
+      { t: now - 118 * M, who: 'system', msg: 'Workflow complete — all jobs succeeded (1 partial)' }
+    ];
+    return [r41, r40, r39, r38];
+  }
+
+  seedConns() {
+    return [
+      { id: 'karbon', glyph: 'KB', gbg: '#1E3A5F', gc: '#BFD6EE', name: 'Karbon', cat: 'Trigger source', phase: 'Phase 3 live', status: 'ok', cred: 'whk_secret ••••••••9d41', scopes: ['work-item webhooks', 'timeline:write', 'HMAC + idempotency'], verified: 'Verified 2m ago · HMAC-SHA256' },
+      { id: 'replit', glyph: 'RG', gbg: '#8A3D1B', gc: '#F5CDB5', name: 'Replit Generator', cat: 'Content gen · ContentGenerationProvider', phase: 'Phase 1', status: 'ok', cred: 'nexus-gen.replit.app/api/generate · svc ••••8kd2', scopes: ['Bearer REPLIT_SERVICE_SECRET', 'timeout 90s', 'BullMQ retries'], verified: 'Verified 4m ago · cold start 6.8s' },
+      { id: 'openai', glyph: 'AI', gbg: '#15181B', gc: '#E9E7E1', name: 'OpenAI', cat: 'Distribution copy · GPT-4o', phase: 'Phase 1', status: 'ok', cred: 'sk-proj ••••••••7f2a · gpt-4o', scopes: ['chat.completions'], verified: 'Verified 2m ago · 412ms' },
+      { id: 'wp', glyph: 'WP', gbg: '#1F4E5F', gc: '#CDE8F0', name: 'WordPress', cat: 'CMS · PublisherAdapter', phase: 'Phase 1', status: 'ok', cred: 'blog.aegisadvisory.co.uk · app-pw ••••x2m8', scopes: ['posts:write', 'media:write'], verified: 'Verified 8m ago' },
+      { id: 'meta', glyph: 'MM', gbg: '#2547A8', gc: '#CBD8F7', name: 'Meta Marketing', cat: 'Ads · AdPlatform', phase: 'Phase 3', status: 'sandbox', cred: 'EAAG ••••••••kt3B · act_884012', scopes: ['ads_management', 'pages_read_engagement', 'instagram_basic'], verified: 'Sandbox account · app review pending' },
+      { id: 'ac', glyph: 'AC', gbg: '#265B8F', gc: '#CFE2F5', name: 'ActiveCampaign', cat: 'Email · EmailProvider', phase: 'Phase 2', status: 'ok', cred: 'aegis.api-us1.com · key ••••41aa', scopes: ['contacts', 'campaigns', 'forms'], verified: 'Verified 12m ago · list: Subscribers (1,842)' },
+      { id: 'li', glyph: 'LI', gbg: '#0A4D77', gc: '#C6E2F2', name: 'LinkedIn', cat: 'Social · SocialPublisher', phase: 'Phase 2', status: 'ok', cred: 'org: Aegis Advisory · tok ••••8c02', scopes: ['w_organization_social'], verified: 'Verified 1h ago' },
+      { id: 'fb', glyph: 'FB', gbg: '#1B4C8C', gc: '#CBDDF5', name: 'Facebook Page', cat: 'Social · SocialPublisher', phase: 'Phase 2', status: 'ok', cred: 'page: Aegis Advisory · tok ••••m41q', scopes: ['pages_manage_posts'], verified: 'Verified 1h ago' },
+      { id: 'ig', glyph: 'IG', gbg: '#7A2E5C', gc: '#F2CFE4', name: 'Instagram', cat: 'Social · SocialPublisher', phase: 'Phase 2', status: 'attention', cred: 'ig-business: @aegisadvisory · tok expired', scopes: ['instagram_content_publish'], verified: 'Token expired 2d ago — publishes fail non-blocking' }
+    ];
+  }
+
+  componentDidMount() { this._iv = setInterval(() => this.tick(), 900); }
+  componentWillUnmount() { clearInterval(this._iv); this._timeouts.forEach(t => clearTimeout(t)); }
+
+  me() { return this.USERS.find(u => u.id === this.state.me) || null; }
+
+  tryLogin() {
+    const em = (this.state.loginEmail || '').trim().toLowerCase();
+    const u = this.USERS.find(x => x.email === em);
+    if (!u) { this.setState({ loginErr: 'No account found for that email — pick a demo account below.' }); return; }
+    if (!this.state.loginPw) { this.setState({ loginErr: 'Enter your password (any password works in the prototype).' }); return; }
+    try { localStorage.setItem('nf-user', u.id); } catch (e) {}
+    this.setState({ me: u.id, loginPw: '', loginErr: '', toast: { msg: 'Signed in as ' + u.handle + ' · role: ' + u.role + ' · session active', until: Date.now() + 4200 } });
+  }
+
+  effDark() { return this.state.dark ?? (this.props.darkMode ?? false); }
+  applyTheme(dark) {
+    const T = this.THEMES[dark ? 'dark' : 'light'];
+    const rs = document.documentElement.style;
+    Object.keys(T).forEach(k => rs.setProperty('--' + k, T[k]));
+  }
+
+  effThreshold() { return this.state.threshold ?? (this.props.seoThreshold ?? 80); }
+  effAuto() { return this.state.autoApprove ?? (this.props.autoApprove ?? false); }
+
+  tick() {
+    const speed = this.props.simSpeed ?? 1;
+    this.state.runs.forEach(run => {
+      if (run.status === 'review') {
+        const num = parseInt(run.id.slice(3), 10) || 0;
+        if (num % 2 === 1 && !run.approvedBy) {
+          run.reviewTicks = (run.reviewTicks || 0) + speed;
+          if (run.reviewTicks >= 8 && !run.peerViewing) {
+            run.peerViewing = 'd.okafor';
+            this.log(run, 'system', 'd.okafor opened this draft in the review queue');
+          }
+          if (run.reviewTicks >= 24) {
+            this.doApprove(run, 'd.okafor');
+            this.state.toast = { msg: 'd.okafor approved ' + run.id + ' from the review queue — moved to deploy', until: Date.now() + 5200 };
+            return;
+          }
+        }
+        if (this.effAuto() && run.seo && run.seo.total >= this.effThreshold()) {
+          run.reviewWait = (run.reviewWait || 0) + 1;
+          if (run.reviewWait >= 3) this.doApprove(run, 'auto');
+        }
+        return;
+      }
+      if (run.status !== 'running') return;
+      run.stageTicks += speed;
+      const st = this.STAGES[run.stageIdx];
+      if (st && run.stageTicks >= st.dur) this.completeStage(run);
+    });
+    if (this.state.toast && Date.now() > this.state.toast.until) this.state.toast = null;
+    this.setState(s => ({ t: s.t + 1 }));
+  }
+
+  advance(run, statusOverride) {
+    const S = run.stages[run.stageIdx];
+    S.status = statusOverride || 'done';
+    if (!S.ms) S.ms = this.STAGES[run.stageIdx].dur * 850 + Math.floor(Math.random() * 500);
+    run.stageIdx++; run.stageTicks = 0; run.updated = Date.now();
+    if (run.stageIdx >= this.STAGES.length) {
+      run.status = 'complete';
+      this.log(run, 'system', 'Workflow complete — all jobs succeeded' + (statusOverride === 'partial' ? ' (1 partial)' : ''));
+    } else {
+      run.stages[run.stageIdx].status = 'active';
+    }
+  }
+
+  completeStage(run) {
+    const key = this.STAGES[run.stageIdx].key;
+    const S = run.stages[run.stageIdx];
+    if ((key === 'ads' || key === 'email' || key === 'social') && !this.state.adapters[key]) {
+      S.note = 'Skipped — adapter disabled in Settings';
+      this.log(run, 'system', this.STAGES[run.stageIdx].label + ' skipped — adapter disabled');
+      this.advance(run, 'skipped');
+      return;
+    }
+    if (key === 'trigger') {
+      S.note = 'Karbon webhook verified (HMAC ✓) — topic, keywords, tone extracted';
+      this.log(run, 'api', S.note);
+    } else if (key === 'research') {
+      S.note = 'POST nexus-gen.replit.app/api/generate · Bearer ✓ · payload: topic, keywords, tone + brand voice (' + this.state.brandVoice.length + ' chars)';
+      this.log(run, 'api', 'ReplitGenerationAdapter: ' + S.note);
+    } else if (key === 'draft') {
+      run.draft = this.mkDraft(run);
+      const gsecs = 28 + Math.floor(Math.random() * 26);
+      S.note = 'Replit response 200 OK in ' + gsecs + 's — ' + run.draft.words.toLocaleString() + '-word post + lead magnet URL parsed · draft persisted (status: draft)';
+      this.log(run, 'api', S.note);
+    } else if (key === 'seo') {
+      run.seo = this.computeSeo(run);
+      S.note = 'SEO score ' + run.seo.total + '/100 · ' + run.seo.sugs.length + ' suggestion' + (run.seo.sugs.length === 1 ? '' : 's');
+      this.log(run, 'system', S.note);
+      S.status = 'done'; S.ms = S.ms || 950;
+      run.stageIdx = 4; run.stageTicks = 0; run.stages[4].status = 'gate';
+      run.status = 'review'; run.reviewSince = Date.now(); run.reviewWait = 0; run.updated = Date.now();
+      this.log(run, 'system', 'Paused — awaiting human review (threshold ' + this.effThreshold() + ', auto-approve ' + (this.effAuto() ? 'on' : 'off') + ')');
+      return;
+    } else if (key === 'deploy') {
+      if (run.deployFail === 'retry' && S.attempts === 1) {
+        S.attempts = 2; S.status = 'retry'; run.stageTicks = -2; run.updated = Date.now();
+        S.note = 'POST /wp-json/wp/v2/posts → 502 Bad Gateway · retry 1/3 in 2s (exponential backoff)';
+        this.log(run, 'api', S.note);
+        run.deployFail = null;
+        return;
+      }
+      run.artifacts.blogUrl = 'blog.aegisadvisory.co.uk/' + this.slugOf(run.topic);
+      run.artifacts.magnetUrl = 'blog.aegisadvisory.co.uk/downloads/' + this.slugOf(run.topic).split('-').slice(0, 3).join('-') + '-checklist.pdf';
+      S.note = 'POST /wp-json/wp/v2/posts → 201 Created · live URL stored';
+      this.log(run, 'api', S.note + (S.attempts > 1 ? ' (attempt ' + S.attempts + ')' : ''));
+    } else if (key === 'distgen') {
+      run.dist = this.mkDist(run);
+      run.distOrig = JSON.parse(JSON.stringify(run.dist));
+      run.distEdited = { ads: false, email: false, social: false };
+      S.note = 'Ad creative, campaign email + 3 platform captions generated from the approved post';
+      this.log(run, 'api', 'GPT-4o (brand voice in system prompt): distribution payloads generated — ad creative, email, LinkedIn/FB/IG captions');
+      S.status = 'done'; S.ms = S.ms || 2600;
+      run.stageIdx = 7; run.stageTicks = 0; run.stages[7].status = 'gate';
+      run.status = 'distreview'; run.distSince = Date.now(); run.updated = Date.now();
+      this.log(run, 'system', 'Paused — distribution review gate (human approval required; auto-approve never applies here)');
+      this.state.toast = { msg: run.id + ' distribution payloads ready for review', until: Date.now() + 4200 };
+      return;
+    } else if (key === 'ads') {
+      run.artifacts.adId = 'camp_' + (2380 + this.simCount) + ' · adset_' + (5510 + this.simCount) + ' · ad_' + (9170 + this.simCount) + ' (sandbox)';
+      S.note = 'LEADGEN campaign + ad set + creative created in sandbox → ActiveCampaign sign-up form';
+      this.log(run, 'api', 'Meta: ' + S.note);
+    } else if (key === 'email') {
+      run.artifacts.campaignId = 'cmp_' + (5520 + this.simCount) + ' — queued to 1,842 contacts';
+      S.note = 'Campaign queued — 1,842 subscribers + ad-leads segment · magnet link + post teaser';
+      this.log(run, 'api', 'ActiveCampaign: ' + S.note);
+    } else if (key === 'social') {
+      const igOk = this.state.igFixed;
+      run.artifacts.social = igOk ? 'LinkedIn ✓ · Facebook ✓ · Instagram ✓' : 'LinkedIn ✓ · Facebook ✓ · Instagram ✕';
+      S.note = igOk ? 'LinkedIn ✓ · Facebook ✓ · Instagram ✓ — all pages posted' : 'LinkedIn ✓ · Facebook ✓ · Instagram ✕ (token expired) — non-blocking, flagged in Connections';
+      this.log(run, 'api', S.note);
+      if (!igOk) { this.advance(run, 'partial'); return; }
+    } else if (key === 'callback') {
+      run.artifacts.karbonNote = run.karbon + ' — timeline note posted (links + summary)';
+      S.note = 'Karbon Timeline API: note posted to ' + run.karbon + ' — links + completion summary (custom fields untouched)';
+      this.log(run, 'api', S.note);
+    }
+    this.advance(run);
+  }
+
+  doApprove(run, who) {
+    if (run.status !== 'review') return false;
+    run.approvedBy = who;
+    run.peerViewing = null;
+    run.stages[4].status = 'done';
+    run.stages[4].ms = Date.now() - (run.reviewSince || Date.now());
+    run.status = 'running'; run.stageIdx = 5; run.stageTicks = 0; run.stages[5].status = 'active';
+    run.updated = Date.now();
+    if (who === 'auto') this.log(run, 'system', 'Auto-approved — SEO ' + run.seo.total + ' ≥ threshold ' + this.effThreshold());
+    else this.log(run, who, 'Draft approved — content moves to deploy');
+    return true;
+  }
+
+  publishAll(run, who) {
+    if (run.status !== 'distreview') return;
+    run.publishedBy = who;
+    const names = { ads: 'Meta Ads', email: 'email', social: 'social captions' };
+    const ed = ['ads', 'email', 'social'].filter(k => run.distEdited && run.distEdited[k]);
+    if (ed.length) this.log(run, who, 'Manual overrides saved — ' + ed.map(k => names[k]).join(', '));
+    run.stages[7].status = 'done';
+    run.stages[7].ms = Date.now() - (run.distSince || Date.now());
+    run.stages[7].note = 'Approved & published by ' + who + (ed.length ? ' · overrides: ' + ed.map(k => names[k]).join(', ') : ' · payloads unchanged');
+    this.log(run, who, 'Distribution approved — publish jobs enqueued (meta-ads · activecampaign · social)');
+    this.log(run, 'system', 'UTM enforcement — channel parameters appended to all outbound links (meta_ads · activecampaign · linkedin · facebook)');
+    run.status = 'running'; run.stageIdx = 8; run.stageTicks = 0; run.stages[8].status = 'active';
+    run.updated = Date.now();
+  }
+
+  doRevise(run, note, who) {
+    if (run.status !== 'review') return;
+    run.revisions = (run.revisions || 0) + 1;
+    run.seoBoost = (run.seoBoost || 0) + 9;
+    for (let i = 2; i <= 4; i++) run.stages[i] = { status: 'pending', attempts: 1, ms: 0, note: '' };
+    run.seo = null; run.status = 'running'; run.stageIdx = 2; run.stageTicks = 0; run.stages[2].status = 'active';
+    run.updated = Date.now();
+    this.log(run, who || 'j.mercer', 'Revision requested — “' + (note || 'Tighten keyword usage in intro, trim meta description') + '” · looping back to generation');
+  }
+
+  simulate() {
+    const now = Date.now();
+    if (this._lastSim && now - this._lastSim < 3500 && this._lastKb) {
+      this.setState({ toast: { msg: 'Duplicate delivery → idem:' + this._lastKb + ':mkt-ready already set · run NOT re-triggered', until: now + 4600 } });
+      return;
+    }
+    this._lastSim = now;
+    const cfg = this.TOPICS[this.simCount % this.TOPICS.length];
+    this.simCount++;
+    const kb = 'KB-' + (2214 + this.simCount);
+    this._lastKb = kb;
+    const id = 'WF-' + (1041 + this.simCount);
+    const run = this.mkRun(id, kb, cfg.t, cfg.c, cfg.k);
+    run.stages[0].status = 'active';
+    this.log(run, 'system', 'Run created — Karbon stage “Marketing Content — Ready”');
+    this.log(run, 'api', 'POST /api/webhooks/karbon · HMAC signature ✓ · SETNX idem:' + kb + ':mkt-ready → 1 · enqueued (content-pipeline)');
+    this.setState(s => ({ runs: [run, ...s.runs], toast: { msg: 'Webhook received → ' + id + ' · HMAC ✓ · idempotency key set', until: now + 4200 } }));
+  }
+
+  fmtAgo(t) {
+    const d = Math.max(0, Date.now() - t);
+    if (d < 50000) return 'just now';
+    if (d < 3600000) return Math.round(d / 60000) + 'm ago';
+    return (d / 3600000).toFixed(1).replace(/\.0$/, '') + 'h ago';
+  }
+  fmtDur(ms) {
+    if (!ms) return '';
+    if (ms < 1000) return ms + 'ms';
+    if (ms < 90000) return (ms / 1000).toFixed(1) + 's';
+    return Math.round(ms / 60000) + 'm';
+  }
+  fmtClock(t) { const d = new Date(t); const p = n => String(n).padStart(2, '0'); return p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()); }
+
+  renderVals() {
+    const st = this.state, S = this.STATUS, SC = this.SC;
+    const dark = this.effDark();
+    if (this._appliedDark !== dark) { this._appliedDark = dark; this.applyTheme(dark); }
+    const meU = this.me();
+    const pulse = 'nfPulse 1.4s ease-in-out infinite';
+    const th = this.effThreshold(), auto = this.effAuto();
+    const reviewRuns = st.runs.filter(r => r.status === 'review' || r.status === 'distreview');
+    const nActive = st.runs.filter(r => r.status === 'running').length;
+    const nFailed = st.runs.filter(r => r.status === 'failed').length;
+    const nDone = st.runs.filter(r => r.status === 'complete').length;
+
+    const titles = {
+      runs: ['Workflow runs', 'Karbon-triggered pipelines · click a run for its BullMQ job log'],
+      run: ['Run detail', 'Stage-by-stage saga state, artifacts and audit trail'],
+      review: ['Review queue', 'Two human gates — content draft first, then distribution payloads'],
+      conns: ['Connected accounts', 'Adapter credentials · tokens encrypted at rest (AES-256-GCM)'],
+      settings: ['Settings', 'Gates, brand voice, trigger config and adapters']
+    }[st.view] || ['Workflow runs', ''];
+
+    const nav = [
+      { key: 'runs', label: 'Runs', num: '01' },
+      { key: 'review', label: 'Review queue', num: '02' },
+      { key: 'conns', label: 'Connections', num: '03' },
+      { key: 'settings', label: 'Settings', num: '04' }
+    ].map(n => {
+      const active = st.view === n.key || (n.key === 'runs' && st.view === 'run');
+      return {
+        label: n.label, num: n.num, go: () => this.setState({ view: n.key }),
+        color: active ? '#F4F2ED' : '#A7ABB8', bg: active ? 'rgba(255,255,255,.1)' : 'transparent',
+        numColor: active ? '#2FBF8F' : '#5A5F6E', weight: active ? 600 : 400,
+        showBadge: n.key === 'review' && reviewRuns.length > 0, badge: String(reviewRuns.length)
+      };
+    });
+
+    const order = { review: 0, distreview: 1, running: 2, failed: 3, complete: 4 };
+    const sorted = [...st.runs].sort((a, b) => (order[a.status] - order[b.status]) || (b.createdAt - a.createdAt));
+    const runRows = sorted.map(r => {
+      const meta = S[r.status];
+      return {
+        id: r.id, karbon: r.karbon, topic: r.topic.charAt(0).toUpperCase() + r.topic.slice(1), client: r.client,
+        statusLabel: meta.label, stC: meta.c, stBg: meta.bg,
+        seoText: r.seo ? String(r.seo.total) : '—',
+        seoColor: r.seo ? (r.seo.total >= th ? 'var(--grn)' : 'var(--amb)') : 'var(--tx4)',
+        updated: this.fmtAgo(r.updated),
+        segs: r.stages.map(s => ({ bg: SC[s.status], anim: (s.status === 'active' || s.status === 'retry' || s.status === 'gate') ? pulse : 'none' })),
+        open: () => this.setState({ modalRunId: r.id })
+      };
+    });
+
+    const stats = [
+      { label: 'Active runs', val: String(nActive), sub: 'BullMQ · content-pipeline', color: 'var(--amb)' },
+      { label: 'Awaiting review', val: String(reviewRuns.length), sub: 'content + distribution gates', color: 'var(--vio)' },
+      { label: 'Failed / parked', val: String(nFailed), sub: 'manual retry available', color: nFailed ? 'var(--red)' : 'var(--tx)' },
+      { label: 'Completed', val: String(nDone), sub: 'Karbon notified', color: 'var(--grn)' }
+    ];
+
+    // ---- detail ----
+    const run = st.runs.find(r => r.id === st.selectedRunId) || st.runs[0];
+    const dMeta = S[run.status];
+    const stageLabels = { done: 'Done', active: 'Running', retry: 'Retrying', gate: 'In review', pending: 'Pending', failed: 'Failed', partial: 'Partial', skipped: 'Skipped' };
+    const stageRows = this.STAGES.map((sg, i) => {
+      const s = run.stages[i];
+      const col = SC[s.status];
+      const anim = (s.status === 'active' || s.status === 'retry' || s.status === 'gate') ? pulse : 'none';
+      const bits = [];
+      if (s.attempts > 1) bits.push(s.attempts + ' attempts');
+      if (s.ms) bits.push(this.fmtDur(s.ms));
+      return {
+        num: String(i + 1).padStart(2, '0'), label: sg.label, sys: sg.sys,
+        dot: s.status === 'pending' ? 'var(--dot)' : col, anim,
+        statusLabel: stageLabels[s.status], pC: s.status === 'pending' ? 'var(--tx3)' : col,
+        pBg: s.status === 'pending' ? 'var(--bg5)' : (this.TINT[s.status] || 'var(--bg5)'),
+        meta: bits.join(' · '),
+        note: s.note || (s.status === 'active' ? 'In progress…' : ''),
+        showNote: !!(s.note || s.status === 'active'),
+        showRetry: run.status === 'failed' && s.status === 'failed',
+        retry: () => { run.status = 'running'; s.status = 'active'; s.attempts += 1; s.note = ''; run.stageTicks = 0; this.log(run, (this.me() || { handle: 'system' }).handle, 'Manual retry — deploy attempt ' + s.attempts); this.setState({ t: st.t + 1 }); }
+      };
+    });
+    const detailSegs = this.STAGES.map((sg, i) => {
+      const s = run.stages[i];
+      return { label: sg.strip, bg: SC[s.status], tc: s.status === 'pending' ? 'var(--tx4)' : SC[s.status], anim: (s.status === 'active' || s.status === 'retry' || s.status === 'gate') ? pulse : 'none' };
+    });
+    const A = run.artifacts;
+    const artRows = [
+      { k: 'Blog post (WordPress)', v: A.blogUrl || '— pending deploy', c: A.blogUrl ? 'var(--grn)' : 'var(--tx4)' },
+      { k: 'Lead magnet PDF', v: A.magnetUrl || '— pending deploy', c: A.magnetUrl ? 'var(--grn)' : 'var(--tx4)' },
+      { k: 'Meta ads (sandbox)', v: A.adId || '— pending', c: A.adId ? 'var(--tx)' : 'var(--tx4)' },
+      { k: 'ActiveCampaign', v: A.campaignId || '— pending', c: A.campaignId ? 'var(--tx)' : 'var(--tx4)' },
+      { k: 'Social posts', v: A.social || '— pending', c: A.social ? 'var(--tx)' : 'var(--tx4)' },
+      { k: 'Karbon timeline note', v: A.karbonNote || '— on completion / terminal failure', c: A.karbonNote ? 'var(--tx)' : 'var(--tx4)' }
+    ];
+    const auditRows = [...run.audit].reverse().map(a => ({
+      time: this.fmtClock(a.t), who: a.who,
+      whoC: this.HUMANS.indexOf(a.who) >= 0 ? 'var(--vio)' : (a.who === 'api' ? 'var(--grn)' : 'var(--tx3)'),
+      msg: a.msg
+    }));
+
+    // ---- review ----
+    const sel = reviewRuns.find(r => r.id === st.reviewSelId) || reviewRuns[0];
+    const reviewCards = reviewRuns.map(r => {
+      const isD = r.status === 'distreview';
+      return {
+        id: r.id, topic: r.draft ? r.draft.title : r.topic, client: r.client,
+        score: r.seo ? r.seo.total + '/100' : '—',
+        scoreC: r.seo && r.seo.total >= th ? 'var(--grn)' : 'var(--amb)',
+        gateLabel: isD ? 'distribution' : 'content',
+        gateC: isD ? 'var(--cyn)' : 'var(--vio)',
+        gateBg: isD ? 'rgba(14,116,144,.1)' : 'rgba(91,79,194,.1)',
+        waited: this.fmtAgo((isD ? r.distSince : r.reviewSince) || r.updated).replace(' ago', ''),
+        border: sel && sel.id === r.id ? 'var(--grn)' : 'var(--line)',
+        shadow: sel && sel.id === r.id ? '0 2px 8px rgba(19,122,91,.12)' : 'none',
+        sel: () => this.setState({ reviewSelId: r.id, editing: false, revising: false, pdfOpen: false, rtab: r.status === 'distreview' ? 'ads' : 'blog' })
+      };
+    });
+    const selSeo = sel && sel.seo;
+    const barC = v => v >= 80 ? 'var(--grn)' : (v >= 60 ? 'var(--amb)' : 'var(--red)');
+    const seoBars = selSeo ? [
+      { label: 'Keyword density', val: String(selSeo.kw), w: selSeo.kw + '%', c: barC(selSeo.kw) },
+      { label: 'Readability', val: String(selSeo.read), w: selSeo.read + '%', c: barC(selSeo.read) },
+      { label: 'Heading structure', val: String(selSeo.head), w: selSeo.head + '%', c: barC(selSeo.head) },
+      { label: 'Meta tags', val: String(selSeo.meta), w: selSeo.meta + '%', c: barC(selSeo.meta) }
+    ] : [];
+    const editM = st.editM;
+    const mLen = editM.length;
+
+    // ---- distribution gate ----
+    const gateContent = !!sel && sel.status === 'review';
+    const gateDist = !!sel && sel.status === 'distreview';
+    const rtab = st.rtab || (gateDist ? 'ads' : 'blog');
+    const D = sel ? sel.dist : null;
+    const distReady = !!D;
+    const mkD = (ch, field) => e => {
+      if (!sel || !sel.dist) return;
+      sel.dist[ch][field] = e.target.value;
+      sel.distEdited[ch] = JSON.stringify(sel.dist[ch]) !== JSON.stringify(sel.distOrig[ch]);
+      this.setState(s => ({ t: s.t + 1 }));
+    };
+    const uslug = sel ? this.slugOf(sel.topic).split('-').slice(0, 3).join('-') : 'run';
+    const chNames = { ads: 'Meta Ads', email: 'Email', social: 'Social' };
+    const resetCh = ch => () => {
+      if (!sel || !sel.distOrig) return;
+      sel.dist[ch] = JSON.parse(JSON.stringify(sel.distOrig[ch]));
+      sel.distEdited[ch] = false;
+      this.log(sel, (this.me() || { handle: 'system' }).handle, chNames[ch] + ' payload reset to generated version');
+      this.setState(s => ({ t: s.t + 1 }));
+    };
+    const cnt = (s2, lim) => ({ t: (s2 ? s2.length : 0) + '/' + lim, c: s2 && s2.length > lim ? 'var(--red)' : 'var(--tx3)' });
+    const adsH = D ? D.ads.headline : '', adsP = D ? D.ads.primary : '', adsL = D ? D.ads.link : '';
+    const emS = D ? D.email.subject : '', emB = D ? D.email.body : '';
+    const liCap = D ? D.social.linkedin : '', fbCap = D ? D.social.facebook : '', igCap = D ? D.social.instagram : '';
+    const reviewTabs = [
+      { k: 'blog', label: 'Blog post' },
+      { k: 'ads', label: 'Meta Ads' },
+      { k: 'email', label: 'Email' },
+      { k: 'social', label: 'Social' }
+    ].map(tb => {
+      const active = rtab === tb.k;
+      return {
+        label: tb.label, go: () => this.setState({ rtab: tb.k }),
+        c: active ? 'var(--tx)' : 'var(--tx3)', w: active ? 600 : 500,
+        line: active ? 'var(--grn)' : 'transparent',
+        showDot: tb.k !== 'blog' && !!(sel && sel.distEdited && sel.distEdited[tb.k])
+      };
+    });
+    const chDefs = [
+      { k: 'ads', name: 'Meta Ads', sub: 'LEADGEN campaign · sandbox · limiter 10 req/10s', on: st.adapters.ads },
+      { k: 'email', name: 'ActiveCampaign', sub: '1,842 subscribers + ad-leads segment · limiter 5 req/s', on: st.adapters.email },
+      { k: 'social', name: 'Organic social', sub: 'LinkedIn · Facebook · Instagram · non-blocking', on: st.adapters.social }
+    ];
+    const distChannels = chDefs.map(d => ({
+      name: d.name, sub: d.sub,
+      stateText: d.on ? 'will publish' : 'skipped — off',
+      stateC: d.on ? 'var(--grn)' : 'var(--tx4)',
+      showEdited: !!(sel && sel.distEdited && sel.distEdited[d.k]),
+      goTab: () => this.setState({ rtab: d.k })
+    }));
+    const onPublishAll = () => {
+      const u = this.me();
+      if (!sel || !u) return;
+      if (u.role === 'editor') { this.setState({ toast: { msg: 'Editor role can’t publish — admin or reviewer required', until: Date.now() + 4200 } }); return; }
+      if (sel.status !== 'distreview') { this.setState({ toast: { msg: sel.id + ' was already published by ' + (sel.publishedBy || 'another user') + ' — nothing overwritten', until: Date.now() + 4600 } }); return; }
+      this.publishAll(sel, u.handle);
+      this.setState({ rtab: null, toast: { msg: sel.id + ' → publish jobs enqueued (meta-ads · activecampaign · social)', until: Date.now() + 4200 } });
+    };
+
+    // ---- connections ----
+    const connStatus = { ok: { label: 'Connected', c: 'var(--grn)', bg: 'rgba(19,122,91,.1)' }, sandbox: { label: 'Sandbox', c: 'var(--amb)', bg: 'rgba(180,83,9,.12)' }, attention: { label: 'Action needed', c: 'var(--red)', bg: 'rgba(179,38,30,.09)' } };
+    const connRows = st.conns.map(c => {
+      const isIgFixed = c.id === 'ig' && st.igFixed;
+      const cs = connStatus[isIgFixed ? 'ok' : c.status];
+      return {
+        glyph: c.glyph, gbg: c.gbg, gc: c.gc, name: c.name, cat: c.cat, phase: c.phase,
+        statusLabel: cs.label, stC: cs.c, stBg: cs.bg,
+        cred: isIgFixed ? 'ig-business: @aegisadvisory · tok ••••fresh' : c.cred,
+        scopes: c.scopes,
+        verified: isIgFixed ? 'Reconnected just now' : c.verified,
+        testMsg: c.testMsg || '',
+        onTest: () => {
+          c.testMsg = 'pinging…'; this.setState({ t: st.t + 1 });
+          this._timeouts.push(setTimeout(() => { c.testMsg = '✓ 200 OK · ' + (180 + Math.floor(Math.random() * 400)) + 'ms'; this.setState(s => ({ t: s.t + 1 })); }, 900));
+          this._timeouts.push(setTimeout(() => { c.testMsg = ''; this.setState(s => ({ t: s.t + 1 })); }, 3600));
+        },
+        showFix: c.id === 'ig' && !st.igFixed,
+        onFix: () => this.setState({ igFixed: true, toast: { msg: 'Instagram token refreshed — future runs post 3/3', until: Date.now() + 4200 } })
+      };
+    });
+
+    // ---- settings ----
+    const adDefs = [
+      { key: 'ads', name: 'Meta Ads', phase: 'Phase 3', desc: 'Lead-gen campaign per post · sandbox until review · limiter 10 req/10s', phBg: 'rgba(180,83,9,.12)', phC: 'var(--amb)' },
+      { key: 'email', name: 'ActiveCampaign email', phase: 'Phase 2', desc: 'Campaign to subscribers + ad leads · limiter 5 req/s', phBg: 'rgba(91,79,194,.1)', phC: 'var(--vio)' },
+      { key: 'social', name: 'Organic social', phase: 'Phase 2', desc: 'LinkedIn · Facebook · Instagram announcements', phBg: 'rgba(91,79,194,.1)', phC: 'var(--vio)' }
+    ];
+    const adRows = adDefs.map(d => {
+      const on = st.adapters[d.key];
+      return {
+        name: d.name, phase: d.phase, desc: d.desc, phBg: d.phBg, phC: d.phC,
+        stateText: on ? 'active' : 'skipped', stateC: on ? 'var(--grn)' : 'var(--tx4)',
+        track: on ? 'var(--grn)' : 'var(--line5)', knob: on ? '19px' : '3px',
+        onToggle: () => this.setState(s => ({ adapters: { ...s.adapters, [d.key]: !s.adapters[d.key] } }))
+      };
+    });
+
+    // ---- audit modal ----
+    const mrun = st.modalRunId ? st.runs.find(r => r.id === st.modalRunId) : null;
+    const QUEUES = { trigger: 'content-pipeline', research: 'content-pipeline', draft: 'content-pipeline', seo: 'content-pipeline', review: 'human-gate', deploy: 'wordpress', distgen: 'content-pipeline', distreview: 'human-gate', ads: 'meta-ads · 10 req/10s', email: 'activecampaign · 5 req/s', social: 'social', callback: 'karbon' };
+    let mJobs = [], mAudit = [], mMeta = null;
+    if (mrun) {
+      let tCur = mrun.createdAt;
+      mJobs = this.STAGES.map((sg, i) => {
+        const s = mrun.stages[i];
+        const started = s.status !== 'pending';
+        const live = s.status === 'active' || s.status === 'retry' || s.status === 'gate';
+        const startT = tCur;
+        const jdur = s.ms || (live ? Date.now() - tCur : 0);
+        const endT = startT + jdur;
+        if (started) tCur = endT;
+        return {
+          num: String(i + 1).padStart(2, '0'), label: sg.label,
+          queue: QUEUES[sg.key], jobId: 'jb_' + mrun.id.slice(3) + '_' + String(i + 1).padStart(2, '0'),
+          dot: s.status === 'pending' ? 'var(--dot)' : SC[s.status],
+          statusLabel: stageLabels[s.status],
+          pC: s.status === 'pending' ? 'var(--tx3)' : SC[s.status],
+          pBg: s.status === 'pending' ? 'var(--bg5)' : (this.TINT[s.status] || 'var(--bg5)'),
+          start: started ? this.fmtClock(startT) : '—',
+          end: started && !live ? this.fmtClock(endT) : (live ? 'running' : '—'),
+          dur: started ? (this.fmtDur(jdur) || '<1s') : 'queued',
+          attempts: s.attempts + (s.attempts > 1 ? ' attempts' : ' attempt'),
+          showErr: !!s.err, err: s.err || '',
+          showNote: !!s.note, note: s.note || ''
+        };
+      });
+      mAudit = [...mrun.audit].reverse().map(a => ({ time: this.fmtClock(a.t), who: a.who, whoC: this.HUMANS.indexOf(a.who) >= 0 ? 'var(--vio)' : (a.who === 'api' ? 'var(--grn)' : 'var(--tx3)'), msg: a.msg }));
+      mMeta = S[mrun.status];
+    }
+
+    return {
+      // chrome
+      navItems: nav, pageTitle: titles[0], pageSub: titles[1],
+      queueChip: 'BullMQ · active ' + nActive,
+      onSimulate: () => this.simulate(),
+      onTheme: () => { const nd = !dark; try { localStorage.setItem('nf-theme', nd ? 'dark' : 'light'); } catch (e) {} this.setState({ dark: nd }); },
+      themeGlyph: dark ? '☼' : '☾',
+      showLogin: !meU,
+      meInitials: meU ? meU.initials : '—', meName: meU ? (meU.first + ' ' + meU.last) : 'Signed out',
+      meRole: meU ? ('Marketing · ' + meU.role) : '',
+      onLogout: () => { try { localStorage.setItem('nf-user', ''); } catch (e) {} this.setState({ me: null, loginPw: '', loginErr: '' }); },
+      loginEmail: st.loginEmail, onLoginEmail: e => this.setState({ loginEmail: e.target.value, loginErr: '' }),
+      loginPw: st.loginPw, onLoginPw: e => this.setState({ loginPw: e.target.value, loginErr: '' }),
+      loginErr: st.loginErr, loginErrShow: !!st.loginErr,
+      onLogin: () => this.tryLogin(),
+      onLoginKey: e => { if (e.key === 'Enter') this.tryLogin(); },
+      demoUsers: this.USERS.map(u => ({
+        initials: u.initials, name: u.first + ' ' + u.last, role: u.role,
+        roleC: u.role === 'admin' ? 'var(--grn)' : (u.role === 'reviewer' ? 'var(--vio)' : 'var(--amb)'),
+        pick: () => this.setState({ loginEmail: u.email, loginPw: 'demo-pass', loginErr: '' })
+      })),
+      peerShow: !!(sel && sel.peerViewing && sel.status === 'review'),
+      peerText: sel && sel.peerViewing ? sel.peerViewing + ' is viewing this draft right now — approvals are first-come, and you’ll be notified if it moves.' : '',
+      approveOpacity: (meU && meU.role === 'editor') ? '.45' : '1',
+      approveCursor: (meU && meU.role === 'editor') ? 'not-allowed' : 'pointer',
+      modalShow: !!mrun, mId: mrun ? mrun.id : '', mKarbon: mrun ? mrun.karbon : '',
+      mStatusLabel: mMeta ? mMeta.label : '', mStBg: mMeta ? mMeta.bg : 'transparent', mStC: mMeta ? mMeta.c : 'inherit',
+      mJobs, mAudit,
+      onModalClose: () => this.setState({ modalRunId: null }),
+      onModalBg: () => this.setState({ modalRunId: null }),
+      eatClick: e => e.stopPropagation(),
+      onModalOpenRun: () => this.setState({ view: 'run', selectedRunId: st.modalRunId, modalRunId: null }),
+      toastShow: !!st.toast, toastMsg: st.toast ? st.toast.msg : '',
+      // views
+      viewRuns: st.view === 'runs', viewRun: st.view === 'run', viewReview: st.view === 'review',
+      viewConns: st.view === 'conns', viewSettings: st.view === 'settings',
+      // runs
+      stats, runRows,
+      // detail
+      backToRuns: () => this.setState({ view: 'runs' }),
+      dId: run.id, dKarbon: run.karbon, dStatusLabel: dMeta.label, dStBg: dMeta.bg, dStC: dMeta.c,
+      dCreated: 'created ' + this.fmtAgo(run.createdAt), dTopic: run.topic.charAt(0).toUpperCase() + run.topic.slice(1),
+      dClient: run.client, dTone: run.tone, dKeywords: run.keywords,
+      dRevText: run.revisions ? run.revisions + ' revision' + (run.revisions > 1 ? 's' : '') : 'no revisions',
+      detailSegs, stageRows, artRows, auditRows,
+      // review
+      emptyReview: reviewRuns.length === 0, hasSel: !!sel, reviewCount: String(reviewRuns.length), reviewCards,
+      reviewTabs, tabBlog: rtab === 'blog', tabAds: rtab === 'ads', tabEmail: rtab === 'email', tabSocial: rtab === 'social',
+      gateContent, gateDist, distReady, distPending: !distReady,
+      selChipLabel: gateDist ? 'approved' : 'draft',
+      selChipBg: gateDist ? 'rgba(19,122,91,.1)' : 'rgba(91,79,194,.1)',
+      selChipC: gateDist ? 'var(--grn)' : 'var(--vio)',
+      adsH, adsHN: cnt(adsH, 40), adsP, adsPN: cnt(adsP, 125), adsL,
+      onAdsH: mkD('ads', 'headline'), onAdsP: mkD('ads', 'primary'), onAdsL: mkD('ads', 'link'),
+      adsEdited: !!(sel && sel.distEdited && sel.distEdited.ads), onResetAds: resetCh('ads'),
+      emS, emSN: cnt(emS, 60), emB,
+      onEmS: mkD('email', 'subject'), onEmB: mkD('email', 'body'),
+      emailEdited: !!(sel && sel.distEdited && sel.distEdited.email), onResetEmail: resetCh('email'),
+      liCap, liN: liCap.length + ' chars', fbCap, fbN: fbCap.length + ' chars', igCap, igN: igCap.length + '/2200',
+      onLiCap: mkD('social', 'linkedin'), onFbCap: mkD('social', 'facebook'), onIgCap: mkD('social', 'instagram'),
+      socialEdited: !!(sel && sel.distEdited && sel.distEdited.social), onResetSocial: resetCh('social'),
+      distChannels, onPublishAll,
+      utmAds: '?utm_source=meta_ads&utm_medium=paid_social&utm_campaign=' + uslug,
+      utmEmail: '?utm_source=activecampaign&utm_medium=email&utm_campaign=' + uslug,
+      utmSocial: '?utm_source={platform}&utm_medium=organic_social&utm_campaign=' + uslug,
+      pdfOpen: st.pdfOpen, pdfBtnLabel: st.pdfOpen ? 'Hide preview' : 'Preview PDF',
+      onPdfToggle: () => this.setState(s => ({ pdfOpen: !s.pdfOpen })),
+      pdfMeta: 'by Replit generator · 38 KB',
+      pdfUrlText: sel && sel.artifacts.magnetUrl ? sel.artifacts.magnetUrl : 'URL assigned at deploy',
+      pdfItems: [
+        { n: '01', t: 'Split revenue by service line — flag anything above 40% concentration' },
+        { n: '02', t: 'Price retainers against enforcement-cycle demand, not headcount' },
+        { n: '03', t: 'Hold three months of overheads in a separate buffer account' },
+        { n: '04', t: 'Screen method-development work for R&D relief eligibility' },
+        { n: '05', t: 'Book quarterly cash-flow forecast reviews with your advisor' }
+      ],
+      publishNote: 'Nothing is enqueued to the adapters until this approval. Edits are saved as manual overrides and logged to the audit trail.',
+      selId: sel ? sel.id + ' · ' + sel.karbon : '',
+      selTitle: sel && sel.draft ? sel.draft.title : '', selMeta: sel && sel.draft ? sel.draft.meta : '',
+      selMagnet: sel && sel.draft ? sel.draft.magnet : '',
+      selWordsText: sel && sel.draft ? sel.draft.words.toLocaleString() + ' words' : '',
+      selRevText: sel ? (sel.revisions ? 'revision ' + sel.revisions : 'first draft') : '',
+      selKeywords: sel ? sel.keywords : [],
+      selParas: [
+        'Health and safety consultancies sell certainty, yet most run on volatile project income. Across the practices we analysed, 68% of revenue arrives through one-off audits and assessments — work that evaporates the moment a client’s compliance calendar goes quiet.',
+        'This guide covers the financial architecture that stabilises a practice: retainer pricing bands, cash buffers sized to enforcement cycles, and the R&D relief most firms never claim on method development.'
+      ],
+      selOutline: ['Why project revenue keeps H&S firms fragile', 'Retainer pricing: three bands that work', 'Sizing a cash buffer to enforcement cycles', 'R&D relief on method development', 'The 12-point financial health checklist'],
+      editing: st.editing, notEditing: !st.editing,
+      editT: st.editT, editM: st.editM,
+      metaLen: mLen + '/155', metaLenC: mLen > 155 ? 'var(--red)' : 'var(--tx3)',
+      onEditT: e => this.setState({ editT: e.target.value }),
+      onEditM: e => this.setState({ editM: e.target.value }),
+      onStartEdit: () => { if (sel && sel.draft) this.setState({ editing: true, editT: sel.draft.title, editM: sel.draft.meta, revising: false }); },
+      onSaveEdit: () => { if (sel && sel.draft) { sel.draft.title = st.editT; sel.draft.meta = st.editM; this.log(sel, (this.me() || { handle: 'system' }).handle, 'Draft edited — title + meta description updated'); } this.setState({ editing: false }); },
+      onCancelEdit: () => this.setState({ editing: false }),
+      seoTotal: selSeo ? String(selSeo.total) : '—',
+      seoC: selSeo ? (selSeo.total >= th ? 'var(--grn)' : 'var(--amb)') : 'var(--tx4)',
+      seoVerdict: selSeo ? (selSeo.total >= th ? '≥ threshold ' + th : 'below threshold ' + th) : '',
+      seoThText: 'threshold ' + th + ' · auto ' + (auto ? 'on' : 'off'),
+      seoBars, seoSugs: selSeo ? selSeo.sugs : [],
+      onApprove: () => {
+        if (!sel || !meU) return;
+        if (meU.role === 'editor') { this.setState({ toast: { msg: 'Editor role can’t approve — admin or reviewer required', until: Date.now() + 4200 } }); return; }
+        if (sel.status !== 'review') { this.setState({ toast: { msg: sel.id + ' was already approved by ' + (sel.approvedBy || 'another user') + ' — nothing overwritten', until: Date.now() + 4600 } }); return; }
+        this.doApprove(sel, meU.handle);
+        this.setState({ editing: false, revising: false, toast: { msg: sel.id + ' approved by ' + meU.handle + ' → deploy queued', until: Date.now() + 4000 } });
+      },
+      revising: st.revising, notRevising: !st.revising,
+      revNote: st.revNote,
+      onRevNote: e => this.setState({ revNote: e.target.value }),
+      onStartRevise: () => this.setState({ revising: true, editing: false }),
+      onCancelRevise: () => this.setState({ revising: false }),
+      onConfirmRevise: () => {
+        if (!sel || !meU) return;
+        if (sel.status !== 'review') { this.setState({ revising: false, toast: { msg: sel.id + ' was already approved by ' + (sel.approvedBy || 'another user') + ' — revision not sent', until: Date.now() + 4600 } }); return; }
+        this.doRevise(sel, st.revNote.trim(), meU.handle);
+        this.setState({ revising: false, revNote: '', toast: { msg: sel.id + ' → revision loop · regenerating draft', until: Date.now() + 4000 } });
+      },
+      approveNote: (meU && meU.role === 'editor')
+        ? 'Signed in as editor — you can edit drafts and payloads, but approve/publish needs an admin or reviewer. Every action is logged with your user id.'
+        : (auto
+        ? 'Auto-approve is ON — drafts scoring ≥ ' + th + ' clear the content gate after a short hold. The distribution gate that follows always needs a human.'
+        : 'Approval deploys the post, then ad, email and social payloads pause at a distribution gate — nothing publishes without a second sign-off.'),
+      // connections
+      connRows,
+      // settings
+      brandVoice: st.brandVoice,
+      onBrandVoice: e => this.setState({ brandVoice: e.target.value, bvSavedAt: Date.now() }),
+      bvCount: st.brandVoice.length + ' chars',
+      bvSaved: st.bvSavedAt && Date.now() - st.bvSavedAt < 2600 ? 'saved ✓ · applies to next run' : '',
+      bvSavedC: 'var(--grn)',
+      thVal: String(th), onTh: e => this.setState({ threshold: Number(e.target.value) }),
+      autoTrack: auto ? 'var(--grn)' : 'var(--line5)', autoKnob: auto ? '19px' : '3px',
+      onAutoToggle: () => this.setState({ autoApprove: !auto }),
+      autoNote: auto ? 'On — runs scoring ≥ ' + th + ' skip the content gate (logged as auto-approved). Distribution review still requires a human.' : 'Off — every draft pauses for human review regardless of score. Distribution payloads always need a human.',
+      autoNoteC: auto ? 'var(--amb)' : 'var(--tx3)',
+      concVal: String(st.concurrency),
+      onConcUp: () => this.setState(s => ({ concurrency: Math.min(10, s.concurrency + 1) })),
+      onConcDown: () => this.setState(s => ({ concurrency: Math.max(1, s.concurrency - 1) })),
+      onCopyHook: () => { try { navigator.clipboard.writeText('https://nexusflow.up.railway.app/api/webhooks/karbon'); } catch (e) {} this.setState({ copied: true }); this._timeouts.push(setTimeout(() => this.setState({ copied: false }), 2000)); },
+      copyLabel: st.copied ? 'Copied ✓' : 'Copy',
+      secretText: st.secretShown ? 'whk_4f2c9a81d7e35b60' : 'whk_ ••••••••••••',
+      onSecret: () => this.setState(s => ({ secretShown: !s.secretShown })),
+      secretBtn: st.secretShown ? 'Hide' : 'Reveal',
+      adRows
+    };
+  }
+}
+</script>
+</body>
+</html>

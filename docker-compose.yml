@@ -1,0 +1,61 @@
+# Local development stack — Postgres + Redis + the app (API + workers).
+# Usage:
+#   docker compose up -d postgres redis     # infra only, run app with npm run dev
+#   docker compose up --build               # full stack in containers
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: nexusflow
+      POSTGRES_PASSWORD: nexusflow
+      POSTGRES_DB: nexusflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Auto-applies the schema on first boot:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexusflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgres://nexusflow:nexusflow@postgres:5432/nexusflow
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: local-dev-secret-change-me
+      MASTER_ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+      KARBON_WEBHOOK_SECRET: whk_local_dev
+      REPLIT_GENERATOR_APP_URL: https://your-project-name.replit.app/api/generate
+      REPLIT_SERVICE_SECRET: svc_local_dev
+      META_SANDBOX_MODE: "true"
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
+  redisdata:
